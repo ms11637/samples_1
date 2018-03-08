@@ -2,10 +2,10 @@
 -* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
 -*FEX_DESCRIPTION=Legacy Sample: Styled report against CAR
 -*-----------------------------------------------------------------------------*
-
+-* marina 1
 -DEFAULTS &COUNTRY='$*';
 -RUN
-
+ 
 TABLE FILE CAR
 PRINT CAR MODEL SEATS
 BY COUNTRY
@@ -19,4 +19,4 @@ TYPE=DATA,COLUMN=MODEL,COLOR=YELLOW,STYLE=BOLD,WHEN=SEATS GT 4,
 FOCEXEC=CARINST2(MODEL=N3),$
 TYPE=DATA,COLUMN=SEATS,STYLE=BOLD,$
 END
-
+ 
