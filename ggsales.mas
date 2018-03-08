@@ -1,0 +1,29 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=GGSALES, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: Gotham Grinds - GGSALES',$
+SEGNAME=SALES01, SEGTYPE=S1
+ FIELD=SEQ_NO, ALIAS=SEQ, FORMAT=I5, TITLE='Sequence#',
+   DESC='Sequence number in database',$
+ FIELD=CATEGORY, ALIAS=E02, FORMAT=A11, INDEX=I, TITLE='Category',
+   DESC='Product category',$
+ FIELD=PCD, ALIAS=E03, FORMAT=A04, INDEX=I, TITLE='Product ID',
+   DESC='Product Identification code (for sale)',$
+ FIELD=PRODUCT, ALIAS=E04, FORMAT=A16, TITLE='Product', DESC='Product name',$
+ FIELD=REGION, ALIAS=E05, FORMAT=A11, INDEX=I, TITLE='Region',
+   DESC='Region code',$
+ FIELD=ST, ALIAS=E06, FORMAT=A02, INDEX=I, TITLE='State', DESC='State',$
+ FIELD=CITY, ALIAS=E07, FORMAT=A20, TITLE='City', DESC='City',$
+ FIELD=STCD, ALIAS=E08, FORMAT=A05, INDEX=I, TITLE='Store ID',
+   DESC='Store identification code (for sale)',$
+ FIELD=DATE, ALIAS=E09, FORMAT=I8YYMD, TITLE='Date',
+   DESC='Date of sales report',$
+ FIELD=UNITS, ALIAS=E10, FORMAT=I08, TITLE='Unit Sales',
+   DESC='Number of units sold',$
+ FIELD=DOLLARS, ALIAS=E11, FORMAT=I08, TITLE='Dollar Sales',
+   DESC='Total dollar amount of reported sales',$
+ FIELD=BUDUNITS, ALIAS=E12, FORMAT=I08, TITLE='Budget Units',
+   DESC='Number of units budgeted',$
+ FIELD=BUDDOLLARS, ALIAS=E13, FORMAT=I08, TITLE='Budget Dollars',
+   DESC='Total sales quota in dollars',$

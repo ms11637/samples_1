@@ -1,0 +1,29 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=GGDEMOG, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: Gotham Grinds - GGDEMOG',$
+SEGNAME=DEMOG01, SEGTYPE=S1
+ FIELD=ST, ALIAS=E02, FORMAT=A02, INDEX=I, TITLE='State', DESC='State',$
+ FIELD=HH, ALIAS=E03, FORMAT=I09, TITLE='Number of Households',
+   DESC='Number of Households',$
+ FIELD=AVGHHSZ98, ALIAS=E04, FORMAT=I09, TITLE='Average Household Size',
+   DESC='Average Household Size',$
+ FIELD=MEDHHI98, ALIAS=E05, FORMAT=I09, TITLE='Median Household Income',
+   DESC='Median Household Income',$
+ FIELD=AVGHHI98, ALIAS=E06, FORMAT=I09, TITLE='Average Household Income',
+   DESC='Average Household Income',$
+ FIELD=MALEPOP98, ALIAS=E07, FORMAT=I09, TITLE='Male Population',
+   DESC='Male Population',$
+ FIELD=FEMPOP98, ALIAS=E08, FORMAT=I09, TITLE='Female Population',
+   DESC='Female Population',$
+ FIELD=P15TO1998, ALIAS=E09, FORMAT=I09, TITLE='15 to 19',
+   DESC='Population 15 to 19 years old',$
+ FIELD=P20TO2998, ALIAS=E10, FORMAT=I09, TITLE='20 to 29',
+   DESC='Population 20 to 29 years old',$
+ FIELD=P30TO4998, ALIAS=E11, FORMAT=I09, TITLE='30 to 49',
+   DESC='Population 30 to 49 years old',$
+ FIELD=P50TO6498, ALIAS=E12, FORMAT=I09, TITLE='50 to 64',
+   DESC='Population 50 to 64 years old',$
+ FIELD=P65OVR98, ALIAS=E13, FORMAT=I09, TITLE='65 and over',
+   DESC='Population 65 and over',$

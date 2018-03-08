@@ -1,0 +1,141 @@
+-*-----------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=ZCOMP (Record Compress) Exit example for SAM type files
+-*-----------------------------------------------------------------------------*
+
+-TYPE The ZCOMP exit is a programable exit to allow files that
+-TYPE are stored in a compressed format to be read. It does this
+-TYPE by letting the standard I/O routines retrieve a record and
+-TYPE then "runs" the data through a decompression routine before
+-TYPE using the record (ie. printing a field or screening on it).
+-TYPE
+-TYPE The exit is applicable to all SAM type of files, such as
+-TYPE VSAM (SUFFIX=VSAM on mainframe), CISAM (SUFFIX=CISAM on UNIX
+-TYPE and Windows) and RMS (SUFFIX=RMS on OpenVMS) plus plain
+-TYPE sequential files (SUFFIX=FIX/COM) if the request is complex
+-TYPE enough that FOCSAM retrieval is called.
+-TYPE
+-TYPE For this test, we will be using a SUFFIX=FIX example since
+-TYPE it is common to all platforms and portable.
+-TYPE
+-TYPE This test depends on a zcomp sample (stored in etc/src3gl/zcomp.c)
+-TYPE having already been built already under the zcomp name and entry
+-TYPE point (typically via gencpgm) and the IBICPG variable set to the
+-TYPE appropriate location. See the Stored Procedures Manual on use of
+-TYPE gencpgm and setting IBICPG if you are not familiar with gencpgm
+-TYPE and IBICPG usage.
+-TYPE
+-TYPE Currently the standard ZCOMP example supplied with the product
+-TYPE is the C based zcomp.c, but any language may be used provided
+-TYPE it has the standard entry points as the C example. An actual
+-TYPE ZCOMP exit does not have to be called zcomp, it may have any
+-TYPE name as the routine to call is set at run time any number of
+-TYPE routines supporting decompression may exist and be easily
+-TYPE swapped in and out.
+-TYPE
+-TYPE Traces in this exerciser are set to display zcomp trace activity
+-TYPE in the user output. If you are using the standard zcomp sample
+-TYPE you will also see print statements each time a zcomp entry point
+-TYPE is accessed.
+
+SET TRACEUSER=ON
+SET TRACEOFF=ALL
+SET TRACEON=VSAM//CLIENT
+
+-RUN
+-TYPE First create a test master and data to use (via EDAPUT) ...
+
+-SET &SAMPLENAME = 'tstzcomp' ;
+-SET &SAMPLE = 'baseapp/' || &SAMPLENAME ;
+
+-TYPE Creating master for &SAMPLE sample ...
+
+-* A dummy segment at the top is usually good enough to
+-* cause GNTINT activation.
+
+EX -LINES 11 EDAPUT MASTER, &SAMPLE, C, FILE
+FILE=&SAMPLE,SUFFIX=FIX,
+      DATASET=baseapp/tstzcomp.dat, $
+ SEGNAME=DUMMY, SEGTYPE=S0, $
+         FIELD=       , ALIAS=  , A1    , A1    , $
+ SEGNAME=SEG1, SEGTYPE=S0, PARENT=DUMMY, $
+         FIELD=RECTYPE, ALIAS=1 , A1    , A1    , $
+         FIELD=FLD1   , ALIAS=  , A10   , A10   , $
+ SEGNAME=SEG2, SEGTYPE=S0, PARENT=DUMMY, $
+         FIELD=RECTYPE, ALIAS=2 , A1    , A1    , $
+         FIELD=FLD2   , ALIAS=  , A10   , A10   , $
+
+-RUN
+-TYPE Creating data for &SAMPLE sample ...
+
+EX -LINES 6 EDAPUT DATA, &SAMPLE, C, FILE,
+1Type1 Rec1
+2Type2 Rec1
+1Type1 Rec2
+2Type2 Rec2
+1Type1 Rec3
+
+-RUN
+-TYPE Part 1. Run request with no ZCOMP setting
+-TYPE1         Run request ...
+-TYPE
+
+TABLE FILE &SAMPLE
+PRINT FLD1 FLD2 ON TABLE SET SHORTPATH SQL
+END
+
+-RUN
+-TYPE Part 2. Run request using unexisting compression (ZTEST) routine
+-TYPE1         Change setting to unexisting (ZTEST) DLL name
+
+ENGINE VSAMX SET ZCOMP ZTEST
+
+-RUN
+-TYPE1         Notice no ZCOMP0/ZCOMP1/ZCOMP2 initized as no ZTEST ZCOMP
+-TYPE         initializer was found.
+-TYPE1         Run request ...
+-TYPE
+
+TABLE FILE &SAMPLE
+PRINT FLD1 FLD2 ON TABLE SET SHORTPATH SQL
+END
+
+-RUN
+-TYPE Part 3. Run request using standard compression (ZCOMP) routine
+-TYPE
+-TYPE         This request depends on ZCOMP having been built
+-TYPE         beforehand (typically using gencpgm) and the
+-TYPE         location variable IBICPG set beforehand.
+-TYPE
+-TYPE         See Store Procedures GENCPGM appendix for details.
+-TYPE
+-TYPE         Change setting to existing (ZCOMP) DLL name
+-TYPE
+
+ENGINE VSAMX SET ZCOMP ZCOMP
+
+-RUN
+-TYPE1         Run request ...
+-TYPE
+
+TABLE FILE &SAMPLE
+PRINT FLD1 FLD2 ON TABLE SET SHORTPATH SQL
+END
+
+-RUN
+-TYPE Part 4. Set ZCOMP to arbitrary non-existant routine to deactivate
+-TYPE         current compression routine and run request to show deactivation
+-TYPE1         Change setting to XXXXXXX
+
+ENGINE VSAMX SET ZCOMP XXXXXXX
+
+-RUN
+-TYPE1         Notice no ZCOMP0/ZCOMP1/ZCOMP2 initized as no XXXXXXX ZCOMP
+-TYPE         initializer was found.
+-TYPE1         Run request ...
+-TYPE
+
+TABLE FILE &SAMPLE
+PRINT FLD1 FLD2 ON TABLE SET SHORTPATH SQL
+END
+

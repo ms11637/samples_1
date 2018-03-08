@@ -1,0 +1,39 @@
+-*-----------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=Legacy Sample: Component of MR Extract utility 
+-*-----------------------------------------------------------------------------*
+-* For use with MR Extract utility. See MR administrator documentation.
+-*-----------------------------------------------------------------------------*
+
+SET PCOMMA=ON
+-* NT/UNIX: edit FILEDEFs below as appropriate or put in EDASPROF.PRF
+FILEDEF IBIMRDOM DISK C:\ibi\WebFOCUS76\utilities\IBIMRDOM.TXT
+FILEDEF IBIMRDMC DISK C:\ibi\WebFOCUS76\utilities\IBIMRDMC.TXT
+-* OS/390:remove FILEDEFs,uncomment and edit DYNAMs below as appropriate
+-* DYNAM ALLOC FILE IBIMRDOM DSN 'hlq.IBIMRDOM.TXT' SHR REU
+-* DYNAM ALLOC FILE IBIMRDMC DSN 'hlq.IBIMRDMC.TXT' SHR REU
+-RUN
+SET ALL=ON
+TABLE FILE IBIMRDOM
+PRINT *
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD AS DOMINFO FORMAT FOCUS INDEX DOMAIN_HTM
+END
+-RUN
+TABLE FILE IBIMRDMC
+PRINT *
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD AS CONTENT FORMAT FOCUS INDEX DOMAIN_HTM
+END
+-RUN
+JOIN DOMAIN_HTM IN DOMINFO TO ALL DOMAIN_HTM IN CONTENT AS J1
+-RUN
+TABLE FILE DOMINFO
+PRINT
+ITEM_HREF ITEM_FOLDER ITEM_PROP
+BY DOMAIN_DESC
+BY REC1
+BY REC2
+BY ITEM_DESC
+ON TABLE SET SHORTPATH SQL
+END

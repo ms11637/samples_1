@@ -1,0 +1,13 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=JOBFILE  ,SUFFIX=FOC, REMARKS='Legacy Metadata Sample: jobfile',$
+SEGNAME=JOBSEG   ,SEGTYPE=S1
+ FIELD=JOBCODE     ,ALIAS=JC          ,USAGE=A3          ,INDEX=I,$
+ FIELD=JOB_DESC    ,ALIAS=JD          ,USAGE=A25                 ,$
+SEGNAME=SKILLSEG ,SEGTYPE=S1   ,PARENT=JOBSEG
+ FIELD=SKILLS      ,ALIAS=            ,USAGE=A4                  ,$
+ FIELD=SKILL_DESC  ,ALIAS=SD          ,USAGE=A30                 ,$
+SEGNAME=SECSEG   ,SEGTYPE=U    ,PARENT=JOBSEG
+ FIELD=SEC_CLEAR   ,ALIAS=SC          ,USAGE=A6                  ,$

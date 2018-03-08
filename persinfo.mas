@@ -1,0 +1,19 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=PERSINFO, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: persinfo (personnel info)',$
+SEGNAME=PERSONAL, SEGTYPE=S1
+ FIELDNAME=PIN,          ALIAS=ID,       FORMAT=A9,   INDEX=I,    $
+ FIELDNAME=INCAREOF,     ALIAS=ICO,      FORMAT=A35,              $
+ FIELDNAME=STREETNO,     ALIAS=STR,      FORMAT=A20,              $
+ FIELDNAME=APT,          ALIAS=APT,      FORMAT=A4,               $
+ FIELDNAME=CITY,         ALIAS=CITY,     FORMAT=A20,              $
+ FIELDNAME=STATE,        ALIAS=PROV,     FORMAT=A4,               $
+ FIELDNAME=POSTALCODE,   ALIAS=ZIP,      FORMAT=A10,              $
+ FIELDNAME=COUNTRY,      ALIAS=CTRY,     FORMAT=A15,              $
+ FIELDNAME=HOMEPHONE,    ALIAS=TEL,      FORMAT=A10,              $
+ FIELDNAME=EMERGENCYNO,  ALIAS=ENO,      FORMAT=A10,              $
+ FIELDNAME=EMERGCONTACT, ALIAS=ENAME,    FORMAT=A35,              $
+ FIELDNAME=RELATIONSHIP, ALIAS=REL,      FORMAT=A8,               $
+ FIELDNAME=BIRTHDATE,    ALIAS=BDAT,     FORMAT=YMD,              $

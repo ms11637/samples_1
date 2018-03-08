@@ -1,0 +1,20 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+$ For use with MR Extract utility. See MR administrator documentation.          $
+$-------------------------------------------------------------------------------$
+
+FILE=IBIMRUSR, SUFFIX=COM, REMARKS='MR User Data',
+ SEGNAME=IBIMRUSR, SEGTYPE=S0
+FIELD=USER_HTM,ALIAS=E01,ACTUAL=A12,USAGE=A12, TITLE='User,Reference',
+ DESC='User reference. One occurence per group membership.', $
+FIELD=USER_ID,   ALIAS=E02, ACTUAL=A48,  USAGE=A48, TITLE='UserID',
+ DESC='User login ID.', $
+FIELD=ROLE_HREF,   ALIAS=E06, ACTUAL=A48,  USAGE=A48, TITLE='Role,Reference',
+ DESC='Joins to ROLE_HREF in roles extract.', $
+FIELD=USER_PROP, ALIAS=E03, ACTUAL=A256, USAGE=A256, TITLE='User,Capabilities',
+ DESC='Comma delimited list. Set in User Administration.', $
+FIELD=USER_DESC, ALIAS=E04, ACTUAL=A256, USAGE=A256,TITLE='User,Name',
+ DESC='User name. Displays in User Administration interface.', $
+FIELD=GROUP_HREF,ALIAS=E05,ACTUAL=A13,USAGE=A13,TITLE='Group,Reference',
+ DESC='Joins many to many with GROUP_HREF in groups extract.',$

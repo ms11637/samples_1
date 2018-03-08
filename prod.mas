@@ -1,0 +1,10 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILE=KPROD, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: prod', $
+SEGMENT=PRODUCT, SEGTYPE=S1,
+   FIELDNAME=PROD_CODE,  ALIAS=PCODE,  FORMAT=A3,    FIELDTYPE=I, $
+   FIELDNAME=PROD_NAME,  ALIAS=ITEM,   FORMAT=A15,   $
+   FIELDNAME=PACKAGE,    ALIAS=SIZE,   FORMAT=A12,   $
+   FIELDNAME=UNIT_COST,  ALIAS=COST,   FORMAT=D5.2M, $

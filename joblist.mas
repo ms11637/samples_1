@@ -1,0 +1,15 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=JOBLIST, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: joblist (job list)',$
+SEGNAME=JOBSEG,   SEGTYPE=S1
+ FIELDNAME=JOBCLASS,     ALIAS=JCLASS,   FORMAT=A8,    INDEX=I ,$
+ FIELDNAME=CATEGORY,     ALIAS=JGROUP,   FORMAT=A25,            $
+ FIELDNAME=JOBDESC,      ALIAS=JDESC,    FORMAT=A40,            $
+ FIELDNAME=LOWSAL,       ALIAS=LSAL,     FORMAT=D12.2M,         $
+ FIELDNAME=HIGHSAL,      ALIAS=HSAL,     FORMAT=D12.2M,         $
+
+DEFINE GRADE/A2=EDIT  (JCLASS,'$$$99');$
+DEFINE LEVEL/A25=DECODE GRADE (08 'GRADE 8' 09 'GRADE 9' 10
+'GRADE 10' 11 'GRADE 11' 12 'GRADE 12' 13 'GRADE 13' 14 'GRADE 14');$

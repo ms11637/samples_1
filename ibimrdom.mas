@@ -1,0 +1,14 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+$ For use with MR Extract utility. See MR administrator documentation.          $
+$-------------------------------------------------------------------------------$
+
+FILE=IBIMRDOM, SUFFIX=COM, REMARKS='MR Domain Data',
+ SEGNAME=IBIMRDOM, SEGTYPE=S0
+FIELD=DOMAIN_HTM, ALIAS=E01, ACTUAL=A21, USAGE=A21, TITLE='Domain,Reference',
+ DESC='Joins one to many with DOMAIN_HTM in groups and domaincontent files.',$
+FIELD=DOMAIN_PROP, ALIAS=E02, ACTUAL=A40, USAGE=A40, TITLE='Domain,Properties',
+ DESC='Domain properties',$
+FIELD=DOMAIN_DESC, ALIAS=E03, ACTUAL=A256, USAGE=A256, TITLE='Domain Name',
+ DESC='Domain description. Unique within an MR Repository.',$

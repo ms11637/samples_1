@@ -1,0 +1,117 @@
+-*-----------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=Legacy Sample: MAGNIFY example using CAR
+-*-----------------------------------------------------------------------------*
+
+-*DEFAULTS &WHAT_IS_MAGNIFY_URL:port='localhost:8080';
+-*DEFAULTS &WHAT_IS_ibi_apps='ibi_apps';
+
+SET ASNAMES=MIXED
+ENGINE MAGNIFY SET CONNECTION_ATTRIBUTES MY_PC 'http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/saxfeed'
+ENGINE MAGNIFY SET BASEURL=http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/WFServlet
+ENGINE MAGNIFY SET DATASOURCE=cars
+ENGINE MAGNIFY SET DELIMITER=#!#
+ENGINE MAGNIFY SET BATCHSIZE=100
+SET MULTIPATH=SIMPLE
+SET FOCTRANSFORM=MFACT/ON
+DEFINE FILE CAR
+    S_HARDCODED/TX50='cars';
+    SEARCHTITLE/A1000='<b>' || CAR | ' (' || COUNTRY || ')</b>';
+    SEARCHID/A1000=COUNTRY || '-' || CAR;
+    AMPER/A1=HEXBYT(38, 'A1');
+    TITLE_URL/A1000='http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/WFServlet?IBIF_ex=carinst'
+                   || AMPER || 'IBIAPP_app=carmagn'
+                   || AMPER || 'COUNTRY=' || COUNTRY;
+    LINK_URL1/A1000='http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/WFServlet?IBIF_ex=cargraph'
+                   || AMPER || 'IBIAPP_app=carmagn';
+    LINK_DISPLAY_NAME1/A2000='Car Graph';
+    MPGRANGE/A50=IF MPG LT 10 THEN '1. Less then 10 MPG'
+            ELSE IF MPG LT 20 THEN '2. 11MPG - 20MPG'
+            ELSE '3. Greater then 20MPG';
+END
+TABLE FILE CAR
+PRINT
+   SEARCHTITLE  AS 'SearchTitle'
+   SEARCHID     AS 'MagnifyID'
+
+   COUNTRY      AS 'C1_Country'
+   BODYTYPE     AS 'M3A_Body_Type'
+   MODEL        AS 'M4A_Model'
+   WARRANTY     AS 'M6A_Warranty'
+   STANDARD     AS 'M5A_Features'
+   MPGRANGE     AS 'M7A_MPG_Rating'
+
+   COUNTRY      AS 'S_Country'
+   CAR          AS 'S_Car'
+   MODEL        AS 'SA_Model'
+   BODYTYPE     AS 'SA_BODYTYPE'
+
+   WARRANTY     AS 'SA_WARRANTY'
+   STANDARD     AS 'SA_STANDARD'
+
+   SEARCHID     AS 'WF_INDEX_UNIQUE_KEY'
+
+   TITLE_URL
+   LINK_URL1
+   LINK_DISPLAY_NAME1
+
+   S_HARDCODED
+
+BY COUNTRY
+BY CAR
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD FORMAT MAGNIFY AS MAGN_CAR
+END
+
+-SET FOCMSG = IF &FOCERRNUM EQ 0 THEN ' ' ELSE FEXERR(&FOCERRNUM,'A72');
+-IF &RETCODE EQ 403 GOTO RCODE403;
+-IF &RETCODE NE 0 GOTO ERROR;
+-IF &FOCERRNUM NE 0 GOTO ERROR;
+
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv='REFRESH' content='20;url=http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/search?q=cars'></HEAD>
+<BODY>
+<h5>Error Number: !IBI.AMP.FOCERRNUM; - !IBI.AMP.FOCMSG;<br>
+Return Code: !IBI.AMP.RETCODE;<br>
+Lines Processed: !IBI.AMP.LINES;<br><br></h5>
+After indexing there is a short delay before the information can be searched.<br>
+This can take a moment or two, otherwise, Magnify settings can be updated.<br><br>Click the below link to go to Magnify Search if not automatically redirected:<br>
+<a href='http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/search?q=cars'>http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/search?q=cars
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+
+-RCODE403
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<BODY>
+<h5>Error Number: !IBI.AMP.FOCERRNUM; - !IBI.AMP.FOCMSG;<br>
+Return Code: !IBI.AMP.RETCODE; <i><b><font color="red">(Please confirm that a valid Magnify license is present)</font></b></i><br>
+Lines Processed: !IBI.AMP.LINES;<br><br></h5>
+
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+
+-ERROR
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<BODY>
+<h5>Error Number: !IBI.AMP.FOCERRNUM; - !IBI.AMP.FOCMSG;<br>
+Return Code: !IBI.AMP.RETCODE;<br>
+Lines Processed: !IBI.AMP.LINES;<br><br></h5>
+For error numbers greater than zero, please review the procedure syntax, check ECHO statements, or refer to the WebFOCUS documentation.<br>
+For return codes 1-5, please refer to the Magnify documentation.  For all others, refer to documentation on HTTP response status codes (e.g.: <a href=http://en.wikipedia.org/wiki/List_of_HTTP_status_codes>List of HTTP status codes on Wikipedia</a>).
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT

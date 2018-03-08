@@ -1,0 +1,9 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=FINANCE, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: finance',$
+SEGNAME=TOP, SEGTYPE=S2,$
+ FIELDNAME=YEAR   , , FORMAT=A4,  $
+ FIELDNAME=ACCOUNT, , FORMAT=A4,  $
+ FIELDNAME=AMOUNT , , FORMAT=D12C,$

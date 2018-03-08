@@ -1,0 +1,27 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=VIDEOTRK, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: videotrk (video track for use with Video Track example) ',$
+SEGNAME=CUST,       SEGTYPE=S1
+ FIELDNAME=CUSTID,       ALIAS=CIN,          FORMAT=A4,       $
+ FIELDNAME=LASTNAME,     ALIAS=LN,           FORMAT=A15,      $
+ FIELDNAME=FIRSTNAME,    ALIAS=FN,           FORMAT=A10,      $
+ FIELDNAME=EXPDATE,      ALIAS=EXDAT,        FORMAT=YMD,      $
+ FIELDNAME=PHONE,        ALIAS=TEL,          FORMAT=A10,      $
+ FIELDNAME=STREET,       ALIAS=STR,          FORMAT=A20,      $
+ FIELDNAME=CITY,         ALIAS=CITY,         FORMAT=A20,      $
+ FIELDNAME=STATE,        ALIAS=PROV,         FORMAT=A4,       $
+ FIELDNAME=ZIP,          ALIAS=POSTAL_CODE,  FORMAT=A9,       $
+SEGNAME=TRANSDAT, SEGTYPE=SH1,  PARENT=CUST
+ FIELDNAME=TRANSDATE,    ALIAS=OUTDATE,   FORMAT=YMD,         $
+SEGNAME=SALES,    SEGTYPE=S2,   PARENT=TRANSDAT
+ FIELDNAME=PRODCODE,     ALIAS=PCOD,    FORMAT=A6,            $
+ FIELDNAME=TRANSCODE,    ALIAS=TCOD,    FORMAT=I3,            $
+ FIELDNAME=QUANTITY,     ALIAS=NO,      FORMAT=I3S,           $
+ FIELDNAME=TRANSTOT,     ALIAS=TTOT,    FORMAT=F7.2S,         $
+SEGNAME=RENTALS,  SEGTYPE=S2,   PARENT=TRANSDAT
+ FIELDNAME=MOVIECODE,    ALIAS=MCOD,      FORMAT=A6, INDEX=I, $
+ FIELDNAME=COPY,         ALIAS=COPY,      FORMAT=I2,          $
+ FIELDNAME=RETURNDATE,   ALIAS=INDATE,    FORMAT=YMD,         $
+ FIELDNAME=FEE,          ALIAS=FEE,       FORMAT=F5.2S,       $

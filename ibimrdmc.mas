@@ -1,0 +1,22 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+$ For use with MR Extract utility. See MR administrator documentation.          $
+$-------------------------------------------------------------------------------$
+
+FILE=IBIMRDMC, SUFFIX=COM, REMARKS='MR Domain Content Data',
+ SEGNAME=IBIMRDMC, SEGTYPE=S0
+FIELD=DOMAIN_HTM, ALIAS=E01, ACTUAL=A21, USAGE=A21, TITLE='Domain,Reference',
+ DESC='Joins many to one with DOMAIN_HTM in domains extract.',$
+FIELD=REC1, ALIAS=E02, ACTUAL=A7, USAGE=A7, TITLE='Record,Type',
+ DESC='Values: HELP, OTHER, STDRPT, RPTOBJ, or PROFILE', $
+FIELD=REC2, ALIAS=E03, ACTUAL=A6, USAGE=A6, TITLE='Record,Sub-type',
+ DESC='Values: ITEM, FOLDER, or null', $
+FIELD=ITEM_HREF, ALIAS=E04, ACTUAL=A256, USAGE=A256, TITLE='Item,Reference',
+ DESC='Item reference', $
+FIELD=ITEM_DESC, ALIAS=E05, ACTUAL=A256, USAGE=A256, TITLE='Item Name',
+ DESC='Item description.',$
+FIELD=ITEM_PROP, ALIAS=E06, ACTUAL=A256, USAGE=A256, TITLE='Item,Properties',
+ DESC='The properties for this item.',$
+FIELD=ITEM_FOLDER, ALIAS=E07, ACTUAL=A13, USAGE=A13, TITLE='Item Folder',
+ DESC='Folder href this item belongs in.',$

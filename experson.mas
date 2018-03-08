@@ -1,0 +1,24 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILE=EXPERSON    ,SUFFIX=FOC, REMARKS='Legacy Metadata Sample: experson', $
+SEGMENT=ONESEG, $
+FIELDNAME=SOC_SEC_NO   ,ALIAS=SSN          ,USAGE=A9       ,$
+FIELDNAME=FIRST_NAME   ,ALIAS=FN           ,USAGE=A9       ,$
+FIELDNAME=LAST_NAME    ,ALIAS=LN           ,USAGE=A10      ,$
+FIELDNAME=AGE          ,ALIAS=YEARS        ,USAGE=I2       ,$
+FIELDNAME=SEX          ,ALIAS=             ,USAGE=A1       ,$
+FIELDNAME=MARITAL_STAT ,ALIAS=MS           ,USAGE=A1       ,$
+FIELDNAME=NO_DEP       ,ALIAS=NDP          ,USAGE=I3       ,$
+FIELDNAME=DEGREE       ,ALIAS=             ,USAGE=A3       ,$
+FIELDNAME=NO_CARS      ,ALIAS=CARS         ,USAGE=I3       ,$
+FIELDNAME=ADDRESS      ,ALIAS=             ,USAGE=A14      ,$
+FIELDNAME=CITY         ,ALIAS=             ,USAGE=A10      ,$
+FIELDNAME=WAGE         ,ALIAS=PAY          ,USAGE=D10.2SM  ,$
+FIELDNAME=CATEGORY     ,ALIAS=STATUS       ,USAGE=A1       ,$
+FIELDNAME=SKILL_CODE   ,ALIAS=SKILLS       ,USAGE=A5       ,$
+FIELDNAME=DEPT_CODE    ,ALIAS=WHERE        ,USAGE=A4       ,$
+FIELDNAME=TEL_EXT      ,ALIAS=EXT          ,USAGE=I4       ,$
+FIELDNAME=DATE_EMP     ,ALIAS=BASE_DATE    ,USAGE=I6YMTD   ,$
+FIELDNAME=MULTIPLIER   ,ALIAS=RATIO        ,USAGE=D5.3     ,$

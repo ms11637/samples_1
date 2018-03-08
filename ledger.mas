@@ -1,0 +1,9 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=LEDGER, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: ledger',$
+SEGNAME=TOP, SEGTYPE=S2,$
+ FIELDNAME=YEAR   , , FORMAT=A4, $
+ FIELDNAME=ACCOUNT, , FORMAT=A4, $
+ FIELDNAME=AMOUNT , , FORMAT=I5C,$

@@ -1,0 +1,11 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=REGION, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: region',$
+SEGNAME=TOP, SEGTYPE=S1,$
+ FIELDNAME=ACCOUNT , , FORMAT=A4, $
+ FIELDNAME=E_ACTUAL, , FORMAT=I5C,$
+ FIELDNAME=E_BUDGET, , FORMAT=I5C,$
+ FIELDNAME=W_ACTUAL, , FORMAT=I5C,$
+ FIELDNAME=W_BUDGET, , FORMAT=I5C,$

@@ -1,0 +1,15 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=MOVIES, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: movies (for use with Video Track example)',$
+SEGNAME=MOVINFO, SEGTYPE=S1
+ FIELDNAME=MOVIECODE,    ALIAS=MCOD,     FORMAT=A6, INDEX=I, $
+ FIELDNAME=TITLE,        ALIAS=MTL,      FORMAT=A39,         $
+ FIELDNAME=CATEGORY,     ALIAS=CLASS,    FORMAT=A8,          $
+ FIELDNAME=DIRECTOR,     ALIAS=DIR,      FORMAT=A17,         $
+ FIELDNAME=RATING,       ALIAS=RTG,      FORMAT=A4,          $
+ FIELDNAME=RELDATE,      ALIAS=RDAT,     FORMAT=YMD,         $
+ FIELDNAME=WHOLESALEPR,  ALIAS=WPRC,     FORMAT=F6.2,        $
+ FIELDNAME=LISTPR,       ALIAS=LPRC,     FORMAT=F6.2,        $
+ FIELDNAME=COPIES,       ALIAS=NOC,      FORMAT=I3,          $

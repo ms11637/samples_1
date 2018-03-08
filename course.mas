@@ -1,0 +1,15 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=COURSE,   SUFFIX=FOC, REMARKS='Legacy Metadata Sample: course',$
+SEGNAME=CRSELIST,  SEGTYPE=S1
+ FIELDNAME=COURSECODE,   ALIAS=CCOD,     FORMAT=A7,   INDEX=I,    $
+ FIELDNAME=CTITLE,       ALIAS=COURSE,   FORMAT=A35,              $
+ FIELDNAME=SOURCE,       ALIAS=ORG,      FORMAT=A35,              $
+ FIELDNAME=CLASSIF,      ALIAS=CLASS,    FORMAT=A10,              $
+ FIELDNAME=TUITION,      ALIAS=FEE,      FORMAT=D8.2, MISSING=ON, $
+ FIELDNAME=DURATION,     ALIAS=DAYS,     FORMAT=A3,   MISSING=ON, $
+ FIELDNAME=DESCRIPTN1,   ALIAS=DESC1,    FORMAT=A40,              $
+ FIELDNAME=DESCRIPTN2,   ALIAS=DESC2,    FORMAT=A40,              $
+ FIELDNAME=DESCRIPTN3,   ALIAS=DESC3,    FORMAT=A40,              $

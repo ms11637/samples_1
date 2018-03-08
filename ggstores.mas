@@ -1,0 +1,16 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=GGSTORES, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: Gotham Grinds - GGSTORES',$
+SEGNAME=STORES01, SEGTYPE=S1
+ FIELD=STORE_CODE, ALIAS=E02, FORMAT=A05, INDEX=I, TITLE='Store ID',
+   DESC='Franchisee ID Code',$
+ FIELD=STORE_NAME, ALIAS=E03, FORMAT=A23, TITLE='Store Name',
+   DESC='Store Name',$
+ FIELD=ADDRESS1, ALIAS=E04, FORMAT=A19, TITLE='Contact',
+   DESC='Franchisee Owner',$
+ FIELD=ADDRESS2, ALIAS=E05, FORMAT=A31, TITLE='Address', DESC='Street Address',$
+ FIELD=CITY, ALIAS=E06, FORMAT=A22, TITLE='City', DESC='City',$
+ FIELD=STATE, ALIAS=E07, FORMAT=A02, INDEX=I, TITLE='State', DESC='State',$
+ FIELD=ZIP, ALIAS=E08, FORMAT=A06, TITLE='Zip Code', DESC='Postal Code',$

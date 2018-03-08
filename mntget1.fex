@@ -1,0 +1,20 @@
+-*------------------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ *
+-*FEX_DESCRIPTION=Legacy Sample: Maintain verification using CAR
+-*------------------------------------------------------------------------------------*
+-DEFAULT &CMAPP = samples_1 ;
+-DEFAULT &TABLE = cashflow ;
+-DEFAULT &VERBOSE = N ;
+-SET &VERBOSEWHENCE = IF &VERBOSE EQ N THEN '-* WHENCE' ELSE 'WHENCE' ;
+-SET &VERBOSETYPE = IF &VERBOSE EQ N THEN '-*' ELSE '-TYPE' ;
+-SET &VERBOSEECHO = IF &VERBOSE EQ N THEN '-*' ELSE '-SET &ECHO = ALL ;' ;
+&VERBOSEECHO.EVAL
+MAINTAIN FILE car INTO CARSTK2
+$$Declarations
+Case Top
+Infer car.BODY.BODYTYPE into CARSTK2;
+Reposition COUNTRY
+Stack clear CARSTK2;
+FOR 5 NEXT COUNTRY CAR MODEL BODY INTO CARSTK2;
+EndCase
+END

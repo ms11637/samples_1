@@ -1,0 +1,11 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=ITEMS,     SUFFIX=FOC, REMARKS='Legacy Metadata Sample: items (for use with Video Track example)',$
+SEGNAME=ITMINFO,    SEGTYPE=S1
+ FIELDNAME=PRODCODE,     ALIAS=PCOD,     FORMAT=A6,  INDEX=I, $
+ FIELDNAME=PRODNAME,     ALIAS=PROD,     FORMAT=A20,          $
+ FIELDNAME=OURCOST,      ALIAS=WCOST,    FORMAT=F6.2,         $
+ FIELDNAME=RETAILPR,     ALIAS=PRICE,    FORMAT=F6.2,         $
+ FIELDNAME=ON_HAND,      ALIAS=NUM,      FORMAT=I5,           $

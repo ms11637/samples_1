@@ -1,0 +1,15 @@
+-*-----------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=Legacy Sample: Maintain verification using CAR
+-*-----------------------------------------------------------------------------*
+MAINTAIN FILE car FROM UPDSTK2;
+
+$$Declarations
+
+Case Top
+Infer car.BODY.BODYTYPE into UPDSTK2;
+
+Update car.BODY.SALES from UPDSTK2() ;
+EndCase
+
+END

@@ -1,0 +1,19 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=GGPRODS, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: Gotham Grinds - GGPRODS',$
+SEGNAME=PRODS01, SEGTYPE=S1
+ FIELD=PRODUCT_ID, ALIAS=PCD, FORMAT=A4, INDEX=I, TITLE='Product,Code',
+   DESC='Product Identification Code',$
+ FIELD=PRODUCT_DESCRIPTION, ALIAS=PRODUCT, FORMAT=A16, TITLE='Product',
+   DESC='Product Name',$
+ FIELD=VENDOR_CODE, ALIAS=VCD, FORMAT=A4, INDEX=I, TITLE='Vendor ID',
+   DESC='Vendor Identification Code',$
+ FIELD=VENDOR_NAME, ALIAS=VENDOR, FORMAT=A23, TITLE='Vendor Name',
+   DESC='Vendor Name',$
+ FIELD=PACKAGE_TYPE, ALIAS=PACK, FORMAT=A7, TITLE='Package',
+   DESC='Packaging Style',$
+ FIELD=SIZE, ALIAS=SZ, FORMAT=I2, TITLE='Size', DESC='Package Size',$
+ FIELD=UNIT_PRICE, ALIAS=UNITPR, FORMAT=D7.2, TITLE='Unit,Price',
+   DESC='Price for one unit',$

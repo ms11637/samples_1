@@ -1,0 +1,19 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=EMPDATA, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: empdata',$
+SEGNAME=EMPDATA,  SEGTYPE=S1
+ FIELDNAME=PIN,          ALIAS=ID,       FORMAT=A9,  INDEX=I,    $
+ FIELDNAME=LASTNAME,     ALIAS=LN,       FORMAT=A15,             $
+ FIELDNAME=FIRSTNAME,    ALIAS=FN,       FORMAT=A10,             $
+ FIELDNAME=MIDINITIAL,   ALIAS=MI,       FORMAT=A1,              $
+ FIELDNAME=DIV,          ALIAS=CDIV,     FORMAT=A4,              $
+ FIELDNAME=DEPT,         ALIAS=CDEPT,    FORMAT=A20,             $
+ FIELDNAME=JOBCLASS,     ALIAS=CJCLAS,   FORMAT=A8,              $
+ FIELDNAME=TITLE,        ALIAS=CFUNC,    FORMAT=A20,             $
+ FIELDNAME=SALARY,       ALIAS=CSAL,     FORMAT=D12.2M,          $
+ FIELDNAME=HIREDATE,     ALIAS=HDAT,     FORMAT=YMD,             $
+$
+DEFINE AREA/A13=DECODE DIV (NE 'NORTH EASTERN' SE 'SOUTH EASTERN'
+CE 'CENTRAL' WE 'WESTERN' CORP 'CORPORATE' ELSE 'INVALID AREA');$

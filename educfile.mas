@@ -1,0 +1,11 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=EDUCFILE ,SUFFIX=FOC, REMARKS='Legacy Metadata Sample: educfile',$
+SEGNAME=COURSEG  ,SEGTYPE=S1
+ FIELD=COURSE_CODE ,ALIAS=CC          ,USAGE=A6                   ,$
+ FIELD=COURSE_NAME ,ALIAS=CD          ,USAGE=A30                  ,$
+SEGNAME=ATTNDSEG ,SEGTYPE=SH2   ,PARENT=COURSEG
+ FIELD=DATE_ATTEND ,ALIAS=DA          ,USAGE=I6YMD                ,$
+ FIELD=EMP_ID      ,ALIAS=EID         ,USAGE=A9           ,INDEX=I,$

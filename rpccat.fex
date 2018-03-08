@@ -1,0 +1,1055 @@
+-*-----------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=SYSRPC cataloging routine used by iWay
+-*-----------------------------------------------------------------------------*
+
+-DEFAULT &1 = '' ;
+-DEFAULT &2 = '' ;
+-DEFAULT &STEP = '' ;
+-DEFAULT &WHICH_APP = '' ;
+-DEFAULT &WHICH_RPC = '' ;
+-DEFAULT &WHICH_PARM = '' ;
+-DEFAULT &NEXT_ACTION = '' ;
+-DEFAULT &FILENAME = '' ;
+-DEFAULT &SYSRPCTABLE = 'SYSRPC' ;
+-SET &PAGETITLE = 'Remote Procedure Cataloging' ;
+-SET &nbsp = '&' | 'nbsp' ;
+-SET &RPCCATALOGER = 'rpccat' ;
+
+-IF &STEP EQ ' ' THEN GOTO :RPC_CATALOGER ;
+-IF &STEP EQ 'CREATE' THEN GOTO :RPC_CATALOGER ;
+-SET &ECHO = ALL ;
+-IF &STEP EQ CATALOGER THEN GOTO :RPC_CATALOGER ;
+-IF &STEP EQ RPCLIST   THEN GOTO :RPC_CATALOGER_RPCLIST ;
+-IF &STEP EQ RPCA1     THEN GOTO :RPC_CATALOGER_RPCA1 ;
+-IF &STEP EQ RPCA2     THEN GOTO :RPC_CATALOGER_RPCA2 ;
+-IF &STEP EQ RPCA2A    THEN GOTO :RPC_CATALOGER_RPCA2A ;
+-IF &STEP EQ RPCA3     THEN GOTO :RPC_CATALOGER_RPCA3 ;
+-IF &STEP EQ RPCA3A    THEN GOTO :RPC_CATALOGER_RPCA3A ;
+-IF &STEP EQ RPCA3B    THEN GOTO :RPC_CATALOGER_RPCA3B ;
+
+-TYPE STEP &STEP
+-RUN
+-EXIT
+
+-***********************************************************************************************
+-:RPC_CATALOGER
+-:RPC_CATALOGER_CHECK_SYSRPC_EXISTS
+-TYPE
+-TYPE Verify cataloger is ready to use ...
+-TYPE
+-TYPE ------------------------------------------------------------------------------------------
+-TYPE Check if &SYSRPCTABLE MASTER exists ...
+WHENCE &SYSRPCTABLE MASTER
+-RUN
+-IF &RETCODE EQ 0 THEN GOTO :RPC_CATALOGER_CHECK_SYSRPC_MFD_EXISTS_DONE ;
+-TYPE Creating &SYSRPCTABLE MFD ...
+EX -LINES * EDAPUT MASTER,_EDACONF/CATALOG/&SYSRPCTABLE,C,FILE
+FILENAME=SYSRPC, SUFFIX=FOC,   REMARKS=Cataloged Stored Procedures, $
+ SEGNAME=RPCINFO ,SEGTYPE=S1,
+   FIELD=RPC_NAME     ,,A18,$  Procedure name, RPC_SYNONYM on hub server.
+   FIELD=CREATOR      ,,A8 ,$  Procedure creator. Default EDADBA
+   FIELD=LOCATION     ,,A18,$  SERVER_NAME selected in the GUI client.
+   FIELD=NUM_IPARMS   ,,I4 ,$  Nbr input parameters
+   FIELD=NUM_OPARMS   ,,I4 ,$  Nbr output parameters
+   FIELD=NUM_RESULTS  ,,I4 ,$  Nbr answer sets
+   FIELD=PID          ,,I4 ,$  Platform id
+   FIELD=RPC_DESC     ,,A60,$  Procedure description
+   FIELD=RPC_ALIAS    ,,A18,$  Name of RPC on sub server
+ SEGNAME=PARMINFO,SEGTYPE=S2,
+   FIELD=PARM_NAME    ,,A18,$  Parameter name
+   FIELD=TYPE         ,,I4 ,$  Parm type 1=input or 3=output
+   FIELD=TYPE_NAME    ,,A32,$  Data type name (SYSDTYPE)
+   FIELD=DATA_TYPE    ,,I4 ,$  Data type code (SYSDTYPE)
+   FIELD=LENGTH       ,,I4 ,$  Length of column for CHAR
+   FIELD=PRECISION    ,,I4 ,$  Max length fro data type
+   FIELD=NULLABLE     ,,I4 ,$  1=null, 0=not null, 2=unknown
+   FIELD=SCALE        ,,I4 ,$  Max digits right of decimal
+   FIELD=RADIX        ,,I4 ,$  10=DECIMAL Digits / 2=FLOAT Bits
+   FIELD=PARM_ORDER   ,,I4 ,$  Order of the input or output parameter
+   FIELD=PARM_DESC    ,,A60,$  Parm description
+EDAPUT*
+-TYPE Verifying _EDACONF/CATALOG/&SYSRPCTABLE MASTER Created ...
+WHENCE _EDACONF/CATALOG/&SYSRPCTABLE MASTER
+-RUN
+-IF &RETCODE EQ 0 THEN GOTO :RPC_CATALOGER_CHECK_SYSRPC_MFD_EXISTS_DONE ;
+-TYPE RETCODE &RETCODE Create Failure, R/W access to EDACONF catalog is likely error.
+-TYPE You must have R/W access to EDACONF to initialize and use this tool correct and rerun!
+-EXIT
+-:RPC_CATALOGER_CHECK_SYSRPC_MFD_EXISTS_DONE ;
+-TYPE Verified: _EDACONF/CATALOG/&SYSRPCTABLE MASTER exists.
+-TYPE ------------------------------------------------------------------------------------------
+-TYPE Check if _EDACONF/CATALOG/&SYSRPCTABLE database exists ...
+-SET &EDAPRIV = FGETENV(7,'EDAPRIV',150,A150) ;
+-SET &CHECKCONF = IF  &EDAPRIV EQ ' ' THEN '_EDACONF' ELSE '_EDAPRIV' ;
+WHENCE &CHECKCONF/CATALOG/&SYSRPCTABLE FOCUS
+-RUN
+-IF &RETCODE EQ 0 THEN GOTO :RPC_CATALOGER_CHECK_SYSRPC_EXISTS_DONE ;
+-TYPE &SYSRPCTABLE database not initialized, restart this tool after initialization completes ...
+-TYPE Initializing _EDACONF/CATALOG/&SYSRPCTABLE FOCUS database ...
+-? SET TEMP &TEMP
+-SET &FOCMODE = IF &FOCMODE EQ MSO AND &TEMP EQ MVS THEN PDS ELSE IF &FOCMODE EQ MSO THEN USS ELSE &FOCMODE ;
+-IF &FOCMODE EQ PDS THEN GOTO :DO_SYSRPC_CREATE ;
+USE &CHECKCONF/CATALOG/&SYSRPCTABLE AS &SYSRPCTABLE NEW
+END
+-:DO_SYSRPC_CREATE
+CREATE FILE &SYSRPCTABLE
+-TYPE Verifying ... _EDACONF/CATALOG/&SYSRPCTABLE FOCUS created ...
+WHENCE &SYSRPCTABLE FOCUS
+-IF &RETCODE EQ 0 THEN GOTO :RPC_CATALOGER_CHECK_SYSRPC_EXISTS_LOAD ;
+-RUN
+-TYPE RETCODE &RETCODE
+-TYPE You must have R/W access to EDACONF to initialize and use this tool correct and rerun!
+-EXIT
+-:RPC_CATALOGER_CHECK_SYSRPC_EXISTS_LOAD
+-TYPE Verified: _EDACONF/CATALOG/&SYSRPCTABLE FOCUS exists.
+-TYPE ------------------------------------------------------------------------------------------
+-TYPE Database created, initializing with TABLIST ...
+-* -GOTO :RPC_CATALOGER_CHECK_SYSRPC_EXISTS_LOAD_DONE
+-* Load initial RPC metadata into SYSRPC
+MODIFY FILE &SYSRPCTABLE
+FREEFORM RPC_NAME CREATOR LOCATION NUM_IPARMS NUM_OPARMS
+FREEFORM NUM_RESULTS PID RPC_DESC
+COMPUTE RPC_NAME = IF '&FOCMODE' EQ 'UNIX' THEN LOCASE(18,RPC_NAME,RPC_NAME) ELSE RPC_NAME;
+MATCH RPC_NAME
+ON MATCH REJECT
+ON NOMATCH INCLUDE
+DATA
+RPC_NAME=TABLIST,EDADBA,,1,3,1,1 ,RPC_DESC=RPC THAT PRODUCES A LIST OF TABLE NAMES,$
+END
+MODIFY FILE &SYSRPCTABLE
+FREEFORM RPC_NAME CREATOR LOCATION
+FREEFORM PARM_NAME TYPE_NAME DATA_TYPE
+FREEFORM LENGTH PRECISION NULLABLE
+FREEFORM SCALE RADIX TYPE PARM_ORDER PARM_DESC
+COMPUTE RPC_NAME = IF '&FOCMODE' EQ 'UNIX' THEN LOCASE(18,RPC_NAME,RPC_NAME) ELSE RPC_NAME;
+MATCH RPC_NAME
+  ON MATCH CONTINUE
+  ON NOMATCH REJECT
+MATCH PARM_NAME TYPE
+  ON MATCH REJECT
+  ON NOMATCH INCLUDE
+DATA
+RPC_NAME=TABLIST,EDADBA,,DBNAME,CHAR,0001, 0008,0008,0000,0000, 0000,0003,1,FILENAME,$
+RPC_NAME=TABLIST,EDADBA,,SHLOCATION,CHAR,0001, 0008,0008,0000,0000, 0000,0003,2,INSTALLATION,$
+RPC_NAME=TABLIST,EDADBA,,DESCRIPT,CHAR,0001, 0062,0062,0000,0000, 0000,0003,3,,$
+END
+-RUN
+-TYPE ------------------------------------------------------------------------------------------
+-TYPE
+-IF &STEP EQ 'CREATE' THEN GOTO :RPC_CATALOGER_DONE ;
+-TYPE Done initializing table, restart tool to add RPCs!
+-:RPC_CATALOGER_CHECK_SYSRPC_EXISTS_LOAD_DONE
+-EXIT
+-:RPC_CATALOGER_CHECK_SYSRPC_EXISTS_DONE
+
+-SET &ECHO = ALL ;
+
+-IF &EMSG.EXIST GOTO :RPC_CATALOGER_LABCONT1 ;
+-SET &EMSG = ' ' ;
+-*SET &RPC_RECORDS = 0 ;
+-:RPC_CATALOGER_LABCONT1
+
+APP LIST HOLD
+-RUN
+DEFINE FILE FOCAPPL
+SELOPT/A78 = '<option>' || APPNAME ;
+END
+TABLE FILE FOCAPPL PRINT SELOPT 
+ON TABLE SET SHORTPATH SQL
+ON TABLE SAVE AS APPNAME
+END
+-RUN
+DEFINE FILE &SYSRPCTABLE
+SELOPT/A78 = '<option>' || RPC_NAME ;
+END
+TABLE FILE &SYSRPCTABLE PRINT SELOPT BY RPC_NAME NOPRINT 
+ON TABLE SET SHORTPATH SQL
+ON TABLE SAVE AS RPCNAME
+END
+-RUN
+-SET &RPC_RECORDS = &RECORDS ;
+-TYPE &RPC_RECORDS
+-TYPE &FOCERRNUM
+-IF &FOCERRNUM EQ 0 THEN GOTO :RPC_CATALOGER_LABCONT2 ;
+-SET &EMSG = '**ERROR** &SYSRPCTABLE.EVAL file unavailable - unable to continue - FOC&FOCERRNUM.EVAL' ;
+-:RPC_CATALOGER_LABCONT2
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transittional//EN">
+<HTML>
+<head>
+<title>Select APP Name</title> <link rel="stylesheet" href="cgicss.css" type="text/css">
+<style type="text/css">
+<!--
+BODY { font-family: Arial }
+TEXTAREA.editor { font-family: Courier }
+BODY {background-color: #c9d9ee ;}
+H1 { border-left:1.2em solid yellow; padding:4 0 1 12; font-size:110%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H3 { font-size:100%; font-weight:bold; color:#073A91; white-space:nowrap; }
+H4 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H5 { font-size:65%; font-weight:normal; color:#073A91; white-space:nowrap; }
+td.text1 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+td.text2 { font-size:100%; font-weight:bold; color:#073A91; white-space:nowrap; }
+-->
+</style>
+</head>
+<BODY class="main" style="background-repeat: repeat;"><p><h1>&PAGETITLE</h1></p>
+<form action="webconsole/ibiweb.exe" method="get" name="webfocus" target="_self">
+<!-- input type=hidden name="IBIAPP_app" value="baseapp"-->
+<input type=hidden name="IBIF_ex" value="&RPCCATALOGER">
+<input type=hidden name="STEP" value="RPCLIST">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr> <td width="100%" colspan="2"> <hr> </td> </tr>
+    <tr>
+      <td><h4>Application To Work With &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OR</h4></td>
+      <td><h4>Update An Already Cataloged RPC (Currently &RPC_RECORDS )</h4></td>
+    </tr>
+    <tr><td></td></tr>
+    <tr>
+      <td width="10%" valign="middle">
+       <select name=WHICH_APP> <option selected ="yes" value="*NONE*">None</option> !IBI.FIL.APPNAME; </select>
+      </td>
+      <td width="60%"> <select name=WHICH_RPC> <option selected ="yes" value="*NONE*">None</option> !IBI.FIL.RPCNAME; </select>
+      </td>
+     </tr>
+    <tr><td width="100%" colspan="2" valign="middle"><p>&nbsp;</p><hr><p></td></tr>
+    <tr>
+      <td class="text2" colspan="3">
+      <input type=submit value="Next >>" name="run">&nbsp;&nbsp;!IBI.AMP.EMSG;
+      <input type=hidden name="EMSG" value="!IBI.AMP.EMSG;"></p>
+      </td>
+    </tr>
+    <tr>
+    <td width="50%" colspan="2" valign="middle">
+      <h4>
+      &PAGETITLE is used to catalog server procedures for iWay Service Manager.
+      <br> <br>
+      You may either catalog details of specific procedures or catalog all procedures of an app
+      <br>and then update specific RPC details later (using above Update option).
+      </h4>
+    </td>
+    </tr>
+    <p></p>
+  </table>
+  </form>
+<p>
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+
+-***********************************************************************************************
+-:RPC_CATALOGER_RPCLIST
+-TYPE &EMSG
+-SET &EMSG_SUB = SUBSTR(&EMSG.LENGTH,&EMSG,1,9,9,'A9');
+-IF &EMSG_SUB NE '**ERROR**' THEN GOTO :RPC_CATALOGER_RPCLIST_LABNOERR ;
+-GOTO :RPC_CATALOGER
+-:RPC_CATALOGER_RPCLIST_LABNOERR
+-RUN
+-IF &WHICH_APP NE '*NONE*' THEN GOTO :RPC_CATALOGER_RPCLIST_LABLISTAPPS ;
+-IF &WHICH_RPC NE '*NONE*' THEN GOTO :RPC_CATALOGER_RPCLIST_LABMAINTRPC ;
+-SET &EMSG='No selection made' ;
+-GOTO :RPC_CATALOGER
+-:RPC_CATALOGER_RPCLIST_LABMAINTRPC
+EX &RPCCATALOGER STEP=RPCA1,FILENAME=&WHICH_RPC,CALLEDBY='RPCLIST',NEXT_ACTION=0
+-EXIT
+-:RPC_CATALOGER_RPCLIST_LABLISTAPPS
+-SET &APPNAME = &WHICH_APP ;
+APP QUERY &APPNAME HOLD
+-RUN
+
+DEFINE FILE FOCAPPQ
+FILENAME_F/A18 = GETTOK(FILENAME,70,1,'.',18,FILENAME_F);
+SELOPT/A30 = '<option>' || FILENAME_F ;
+END
+TABLE FILE FOCAPPQ
+PRINT SELOPT BY FILENAME NOPRINT 
+ON TABLE SET SHORTPATH SQL
+ON TABLE SAVE AS RPCNAME IF FILENAME CONTAINS 'fex'
+END
+-RUN
+-IF &RECORDS EQ 0 THEN GOTO :RPC_CATALOGER_RPCLIST_NORPCS ;
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transittional//EN">
+<HTML>
+<head>
+<title>Select APP Name</title> <link rel="stylesheet" href="cgicss.css" type="text/css">
+<style type="text/css">
+<!--
+BODY { font-family: Arial }
+TEXTAREA.editor { font-family: Courier }
+BODY {background-color: #c9d9ee ;}
+H1 { border-left:1.2em solid yellow; padding:4 0 1 12; font-size:110%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H3 { font-size:100%; font-weight:bold; color:#073A91; white-space:nowrap; }
+H4 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H5 { font-size:65%; font-weight:normal; color:#073A91; white-space:nowrap; }
+td.text1 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+-->
+</style>
+</head>
+<BODY class="main" style="background-repeat: repeat;"><p><h1>&PAGETITLE</h1></p>
+<form action="webconsole/ibiweb.exe" method="get" name="webfocus" target="_self">
+<input type=hidden name="IBIF_ex" value="&RPCCATALOGER">
+<input type=hidden name="STEP" value="RPCA1">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr> <td width="100%" colspan="3"> <hr> </td> </tr>
+    <tr>
+    <td width="33%"><h4>Working with <B>!IBI.AMP.APPNAME;</B> &nbsp;&nbsp; - &nbsp;&nbsp; Select RPC and Catalog By RPC Name or Catalog All</h4></td>
+    </tr>
+    <tr> <td width="16%" valign="middle"> <select name=FILENAME> !IBI.FIL.RPCNAME; </select> </td> </tr>
+    <tr> <td width="100%" colspan="2" valign="middle"> <br> <hr> <p> </td> </tr>
+    <tr><td class="text1" colspan="2">
+          <input type="radio" name="NEXT_ACTION" value="0" checked >Catalog By RPC Name
+          <br>
+          <input type="radio" name="NEXT_ACTION" value="1" >Catalog All
+    </td></tr>
+    <tr><td>&nbsp;</td></tr>
+    <tr> <td>
+      <input width="20%" type=submit value="Next >>" name="run">
+      <input type=hidden name="APPNAME" value="!IBI.AMP.APPNAME;">
+    </td> </tr>
+    </p>
+  </table>
+  </form>
+<p>
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+-:RPC_CATALOGER_RPCLIST_NORPCS
+-SET &EMSG='No RPC''s found in application:- &APPNAME.&EVAL' ;
+-GOTO :RPC_CATALOGER
+
+-***********************************************************************************************
+-:RPC_CATALOGER_RPCA1
+-IF &BACK.EXIST THEN GOTO :RPC_CATALOGER_RPCA1_NOFEXTODISP ;
+-IF &NEXT_ACTION EQ 0 THEN GOTO :RPC_CATALOGER_RPCA1_LABJIUPDATE ;
+APP QUERY &APPNAME HOLD
+-RUN
+SET ASNAMES = ON
+DEFINE FILE FOCAPPQ
+FILENAME_F/A18 = GETTOK(FILENAME,70,1,'.',18,FILENAME_F);
+LOCATION/A18 ='&APPNAME' ;
+CREATOR/A8 = 'EDADBA' ;
+END
+TABLE FILE FOCAPPQ
+PRINT FILENAME_F AS RPC_NAME
+LOCATION
+CREATOR
+IF FILENAME CONTAINS 'fex'
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD FORMAT ALPHA
+END
+-RUN
+-IF &RECORDS EQ 0 THEN GOTO :RPC_CATALOGER_RPCA1_NOFEXTODISP ;
+? HOLD
+?F HOLD
+-RUN
+MODIFY FILE &SYSRPCTABLE
+FIXFORM FROM HOLD
+MATCH RPC_NAME
+ON MATCH REJECT
+ON NOMATCH INCLUDE
+DATA ON HOLD
+END
+-RUN
+-TYPE &RECORDS
+-* EX &RPCCATALOGER
+
+-HTMLFORM BEGIN
+<HTML>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transittional//EN">
+<HEAD>
+<style type="text/css">
+<!--
+BODY { font-family: Arial }
+TEXTAREA.editor { font-family: Courier }
+BODY {background-color: #c9d9ee ;}
+H1 { border-left:1.2em solid yellow; padding:4 0 1 12; font-size:110%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H3 { font-size:100%; font-weight:bold; color:#073A91; white-space:nowrap; }
+H4 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H5 { font-size:65%; font-weight:normal; color:#073A91; white-space:nowrap; }
+td.text1 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+-->
+</style>
+<TITLE>Add</TITLE>
+</HEAD>
+<BODY class="main" style="background-repeat: repeat;"><p><h1>&PAGETITLE</h1></p>
+<form action="webconsole/ibiweb.exe" method="get" name="webfocus" target="_self">
+<input type=hidden name="IBIF_ex" value="&RPCCATALOGER">
+<input type=hidden name="STEP" value="CATALOGER">
+<br></br><br></br><br></br><br></br>
+<CENTER>
+<P><B>Catalog All Step Completed</B></P>
+<br></br>
+<tr> <input width="20%" type=submit value="Goto Update An Already Cataloged RPC Screen" name="run"> </tr>
+</CENTER>
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+
+-:RPC_CATALOGER_RPCA1_LABJIUPDATE
+DEFINE FILE &SYSRPCTABLE
+SEP/A1 = '.' ;
+END
+TABLE FILE &SYSRPCTABLE
+PRINT CREATOR SEP LOCATION SEP NUM_IPARMS SEP NUM_OPARMS SEP NUM_RESULTS SEP PID SEP RPC_DESC SEP RPC_ALIAS
+WHERE RPC_NAME EQ '&FILENAME'
+ON TABLE SET SHORTPATH SQL
+ON TABLE SAVE AS RPC1
+END
+-RUN
+-SET &EXISTS = ' ' ;
+-SET &BUTTON1 = 'Next (Add RPC Parms or Select Finish) >>' ;
+-SET &CREATOR = 'EDADBA' ;
+-IF &CALLEDBY.EXIST GOTO :RPC_CATALOGER_RPCA1_LABNOAPP ;
+-SET &LOCATION = &APPNAME ;
+-:RPC_CATALOGER_RPCA1_LABNOAPP
+-SET &NUM_IPARMS = 0 ;
+-SET &NUM_OPARMS = 0 ;
+-SET &NUM_RESULTS = 0 ;
+-SET &PID = 0 ;
+-SET &RPC_DESC = ' ' ;
+-SET &RPC_ALIAS = ' ' ;
+-IF &RECORDS NE 1 THEN GOTO :RPC_CATALOGER_RPCA1_LAB1 ;
+-SET &EXISTS = '** Note: RPC Already Cataloged  **' ;
+-SET &BUTTON1 = 'Update (And Goto Parms Screen) / Delete RPC Details' ;
+-READ RPC1, &REC1,A127.
+-TYPE &REC1
+-SET &CREATOR_UNTRIM = GETTOK(&REC1,&REC1.LENGTH,1, '.', 8, 'A8');
+-SET &CREATOR = TRIM('B', &CREATOR_UNTRIM, 8 ,' ', 1, 'A8');
+-SET &LOCATION_UNTRIM = GETTOK(&REC1,&REC1.LENGTH,2, '.', 18, 'A18');
+-SET &APPNAME = TRIM('B', &LOCATION_UNTRIM, 18 ,' ', 1, 'A18');
+-SET &NUM_IPARMS_UNTRIM = GETTOK(&REC1,&REC1.LENGTH,3, '.', 4, 'A4');
+-SET &NUM_IPARMS = TRIM('B', &NUM_IPARMS_UNTRIM, 4 ,' ', 1, 'A2');
+-SET &NUM_OPARMS_UNTRIM = GETTOK(&REC1,&REC1.LENGTH,4, '.', 4, 'A4');
+-SET &NUM_OPARMS = TRIM('B', &NUM_OPARMS_UNTRIM, 4 ,' ', 1, 'A2');
+-SET &NUM_RESULTS_UNTRIM = GETTOK(&REC1,&REC1.LENGTH,5, '.', 4, 'A4');
+-SET &NUM_RESULTS = TRIM('B', &NUM_RESULTS_UNTRIM, 4 ,' ', 1, 'A2');
+-SET &PID_UNTRIM = GETTOK(&REC1,&REC1.LENGTH,6, '.', 4, 'A4');
+-SET &PID = TRIM('B', &PID_UNTRIM, 4 ,' ', 1, 'A2');
+-SET &RPC_DESC_UNTRIM = GETTOK(&REC1,&REC1.LENGTH,7, '.', 60, 'A60');
+-SET &RPC_DESC = TRUNCATE(&RPC_DESC_UNTRIM);
+-SET &RPC_ALIAS_UNTRIM = GETTOK(&REC1,&REC1.LENGTH,8, '.', 18, 'A18');
+-SET &RPC_ALIAS = TRUNCATE(&RPC_ALIAS_UNTRIM);
+-:RPC_CATALOGER_RPCA1_LAB1
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transittional//EN">
+<HTML>
+<head>
+<title>RCP Information</title> <link rel="stylesheet" href="cgicss.css" type="text/css">
+<style type="text/css">
+<!--
+BODY { font-family: Arial }
+TEXTAREA.editor { font-family: Courier }
+BODY {background-color: #c9d9ee ;}
+H1 { border-left:1.2em solid yellow; padding:4 0 1 12; font-size:110%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H3 { font-size:100%; font-weight:bold; color:#073A91; white-space:nowrap; }
+H4 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H5 { font-size:65%; font-weight:normal; color:#073A91; white-space:nowrap; }
+td.text1 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+-->
+</style>
+</head>
+<BODY class="main" style="background-repeat: repeat;"><p><h1>&PAGETITLE</h1></p>
+<form action="webconsole/ibiweb.exe" method="get" name="webfocus" target="_self">
+<input type=hidden name="IBIF_ex" value="&RPCCATALOGER">
+<input type=hidden name="STEP" value="RPCA2">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr> <td width="100%" colspan="3"> <hr> </td> </tr>
+    <tr>
+      <td width="32%" ><h3>Add General Information for RPC named: &nbsp;</h3></td>
+      <td width="90%"><h3>!IBI.AMP.FILENAME;</h3></td>
+    </tr>
+    <tr> <td width="33%"><h4>&nbsp;&nbsp;&nbsp;!IBI.AMP.EXISTS;</h4></td> </tr>
+    <tr> <td width="100%" colspan="3"> <hr> </td> </tr>
+    <tr> <td class="text1">Creator name </td>
+      <td> <input type=text name="CREATOR" value="!IBI.AMP.CREATOR;" size="9" maxlength="8" ></td>
+    </tr>
+        <tr>
+      <td class="text1">Location</td>
+      <td width="10%" color="#FF0000"><font face="Times New Roman">!IBI.AMP.APPNAME;</font></td>
+    </tr>
+<tr>
+      <td class="text1">Number of input parameters</td>
+      <td width="10%" color="#FF0000"><font face="Times New Roman">!IBI.AMP.NUM_IPARMS;</font></td>
+    </tr>
+    <tr>
+      <td class="text1">Number of output parameters</td>
+      <td width="10%" color="#FF0000"><font face="Times New Roman">!IBI.AMP.NUM_OPARMS;</font></td>
+    </tr>
+    <tr>
+      <td class="text1">Number of answer sets produced</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="NUM_RESULTS" value="!IBI.AMP.NUM_RESULTS;" size="2" maxlength="2" ></td>
+          <td width="1%" valign="bottom" align="left" >
+          &nbsp;</td>
+    </tr>
+    <tr>
+      <td class="text1">Platform Identification</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="PID" value="!IBI.AMP.PID;" size="2" maxlength="2" ></td>
+          <td width="1%" valign="bottom" align="left" >
+          &nbsp;</td>
+    </tr>
+    <tr>
+      <td class="text1">Remote Procedure Description</td>
+      <td class="text1" width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="RPC_DESC" value="!IBI.AMP.RPC_DESC;" size="67" maxlength="60" > Max 60</span></td>
+          <td width="1%" valign="bottom" align="left" >
+          &nbsp;</td>
+    </tr>
+    <tr>
+      <td class="text1">Remote Procedure Alias name</td>
+      <td class="text1" width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="RPC_ALIAS" value="!IBI.AMP.RPC_ALIAS;" size="18" maxlength="18" > Max 18</span></td>
+          <td width="1%" valign="bottom" align="left" >
+          <input type=hidden name="RPC_NAME" value="!IBI.AMP.FILENAME;" ></td>
+    </tr>
+    <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+-IF &EXISTS EQ ' ' THEN GOTO :RPC_CATALOGER_RPCA1_LAB2 ;
+    <tr><td class="text1" colspan="2">
+    <input type="radio" name="NEXT_ACTION" value="update" checked > Update record
+    <br>
+    <input type="radio" name="NEXT_ACTION" value="delete" > Delete Record
+    </td></tr>
+-:RPC_CATALOGER_RPCA1_LAB2
+    <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td><input type=submit value="!IBI.AMP.BUTTON1;" name="run1"></td>
+    <td>
+-IF &EXISTS NE ' ' THEN GOTO :RPC_CATALOGER_RPCA1_LAB3 ;
+    <input type="hidden" name="NEXT_ACTION" value="insert">
+-:RPC_CATALOGER_RPCA1_LAB3
+    <input type="hidden" name="LOCATION" value="!IBI.AMP.APPNAME;">
+    <input type="hidden" name="NUM_IPARMS" value="!IBI.AMP.NUM_IPARMS;">
+    <input type="hidden" name="NUM_OPARMS" value="!IBI.AMP.NUM_OPARMS;">
+    </td></tr>
+   </p>
+  </form></table>
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+-:RPC_CATALOGER_RPCA1_NOFEXTODISP
+-SET &EMSG=' ' ;
+-GOTO :RPC_CATALOGER
+-EXIT
+
+-***********************************************************************************************
+-:RPC_CATALOGER_RPCA2
+-TYPE RPCA2 &RPC_NAME &CREATOR &LOCATION &NUM_RESULTS
+-TYPE &PID &RPC_DESC &RPC_ALIAS
+-TYPE &NEXT_ACTION
+MODIFY FILE &SYSRPCTABLE
+FREEFORM RPC_NAME CREATOR LOCATION NUM_IPARMS NUM_OPARMS NUM_RESULTS PID RPC_DESC RPC_ALIAS
+MATCH RPC_NAME
+-IF &NEXT_ACTION EQ 'delete' GOTO :RPC_CATALOGER_LABDEL ;
+-IF &NEXT_ACTION EQ 'update' GOTO :RPC_CATALOGER_LABUPD ;
+ON MATCH REJECT
+-GOTO :RPC_CATALOGER_LABNEXT ;
+-:RPC_CATALOGER_LABUPD
+ON MATCH UPDATE *
+-GOTO :RPC_CATALOGER_LABNEXT ;
+-:RPC_CATALOGER_LABDEL
+ON MATCH DELETE
+-:RPC_CATALOGER_LABNEXT
+ON NOMATCH INCLUDE
+DATA
+RPC_NAME=&RPC_NAME,
+CREATOR=&CREATOR,
+LOCATION=&LOCATION,
+NUM_IPARMS=&NUM_IPARMS,
+NUM_OPARMS=&NUM_OPARMS,
+NUM_RESULTS=&NUM_RESULTS,
+PID=&PID,
+RPC_DESC=&RPC_DESC,
+RPC_ALIAS=&RPC_ALIAS,$
+END
+-RUN
+-IF &NEXT_ACTION NE 'delete' THEN GOTO :RPC_CATALOGER_LABSEG02 ;
+EX &RPCCATALOGER
+-EXIT
+-:RPC_CATALOGER_LABSEG02
+-*SET &&NEXT_ACTION = &NEXT_ACTION ;
+-*SET &&RPC_NAME = &RPC_NAME ;
+-*SET &&NUM_IPARMS = &NUM_IPARMS ;
+-*SET &&NUM_OPARMS = &NUM_OPARMS ;
+-*SET &TF1 = &NUM_IPARMS + &NUM_OPARMS ;
+-*IF &TF1 = 0 THEN GOTO :RPC_CATALOGER_RPCA2_JUSTRPT ;
+-*IF &NEXT_ACTION EQ 'update' THEN :RPC_CATALOGER_GOTO LABUPD ;
+EX &RPCCATALOGER STEP=RPCA2A,&NEXT_ACTION,&RPC_NAME
+
+-RUN
+-EXIT
+-:RPC_CATALOGER_RPCA2_JUSTRPT
+-GOTO :RPC_CATALOGER
+-EXIT
+
+
+-***********************************************************************************************
+-:RPC_CATALOGER_RPCA2A
+-SET &NEXT_ACTION=&1 ;
+-SET &RPC_NAME=&2 ;
+-TYPE &RPC_NAME
+DEFINE FILE &SYSRPCTABLE
+TF1/A6 = IF TYPE EQ 1 THEN 'INPUT' ELSE 'OUTPUT' ;
+SELOPT/A78 = '<option>' || PARM_NAME || '-' ||TF1 ;
+END
+TABLE FILE &SYSRPCTABLE
+PRINT SELOPT
+WHERE RPC_NAME = '&RPC_NAME'
+ON TABLE SET SHORTPATH SQL
+ON TABLE SAVE AS APPNAME
+END
+-RUN
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transittional//EN">
+<HTML>
+<head>
+<title>Select APP Name</title> <link rel="stylesheet" href="cgicss.css" type="text/css">
+<style type="text/css">
+<!--
+BODY { font-family: Arial }
+TEXTAREA.editor { font-family: Courier }
+BODY {background-color: #c9d9ee ;}
+H1 { border-left:1.2em solid yellow; padding:4 0 1 12; font-size:110%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H3 { font-size:100%; font-weight:bold; color:#073A91; white-space:nowrap; }
+H4 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H5 { font-size:65%; font-weight:normal; color:#073A91; white-space:nowrap; }
+td.text1 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+-->
+</style>
+</head>
+<BODY class="main" style="background-repeat: repeat;"><p><h1>&PAGETITLE</h1></p>
+<form action="webconsole/ibiweb.exe" method="get" name="webfocus" target="_self">
+<!-- input type=hidden name="IBIAPP_app" value="baseapp"-->
+<input type=hidden name="IBIF_ex" value="&RPCCATALOGER">
+<input type=hidden name="STEP" value="RPCA3">
+<div align="left">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr> <td width="100%" colspan="2"> <hr> </td> </tr>
+    <tr>
+      <td><h3>RPC Details, Select Parameter To Update or Parmeter Type to Add for RPC: &nbsp;&nbsp;</h3></td>
+      <td><h3>!IBI.AMP.RPC_NAME;</h3></td>
+    </tr>
+    <tr><td width="100%" colspan="2"></td></tr>
+      <tr>
+       <td width="16%" valign="middle">
+       <select name=WHICH_PARM> !IBI.FIL.APPNAME;
+       <option value="*NEW*-INPUT">New Input Parameter</option>
+       <option value="*NEW*-OUTPUT">New Output Parameter</option>
+       </select>
+      </td>
+    </tr>
+    <tr> <td width="100%" colspan="2" valign="middle"> <br> <hr> <p> </td> </tr>
+    <tr><td class="text1" width="100%" colspan="2" valign="middle">
+    <input type="radio" name="NEXT_ACTION" value="0" checked > Update/Add Parameter for  <b>!IBI.AMP.RPC_NAME; </b>
+    <br>
+    <input type="radio" name="NEXT_ACTION" value="1" > Finished With <b>!IBI.AMP.RPC_NAME; </b>
+    </td></tr>
+    <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr>
+    <td><input type=submit value="Next >>" name="run"> <input type="hidden" name="RPC_NAME" value="!IBI.AMP.RPC_NAME;"</td>
+    </tr>
+  </table>
+  </div>
+</form>
+<p>
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+
+-***********************************************************************************************
+-:RPC_CATALOGER_RPCA3
+-TYPE &WHICH_PARM &NEXT_ACTION
+-SET &PARM_ORDER = 0 ;
+-IF &NEXT_ACTION EQ 1 THEN GOTO :RPC_CATALOGER_RPCA3_CALLRPCA3B ;
+-SET &ECHO=ON ;
+-SET &TF1 = POSIT(&WHICH_PARM,&WHICH_PARM.LENGTH,'-',1,'I2');
+-SET &PARM_NAMET = SUBSTR(&WHICH_PARM.LENGTH,&WHICH_PARM,1,&TF1-1,&TF1-1,'A18');
+-SET &TF2 = SUBSTR(&WHICH_PARM.LENGTH,&WHICH_PARM,&TF1+1,&WHICH_PARM.LENGTH,6,'A6');
+-TYPE &PARM_NAMET
+-TYPE &TF2
+-SET &TYPE = IF &TF2 EQ 'OUTPUT' THEN 3 ELSE 1 ;
+-*EXIT
+-IF &PARM_NAMET EQ '*NEW*' GOTO :RPC_CATALOGER_RPCA3_INSERT ;
+-GOTO :RPC_CATALOGER_RPCA3_UPDATE
+-:RPC_CATALOGER_RPCA3_INSERT
+-* Set default values ready for insert
+-SET &PARM_NAME = ' ' ;
+-SET &TYPE_NAME = 'CHAR' ;
+-SET &DATA_TYPE = 5 ;
+-SET &LENGTH = 0 ;
+-SET &PRECISION = 0 ;
+-SET &NULLABLE = 0 ;
+-SET &SCALE = 0 ;
+-SET &RADIX = 0 ;
+-SET &PARM_ORDER = 0 ;
+-SET &PARM_DESC = ' ' ;
+-GOTO :RPC_CATALOGER_RPCA3_HTMLNOW
+-:RPC_CATALOGER_RPCA3_UPDATE
+APP FI SD DISK baseapp/savedata.dat
+-*IF &&FIRSTTIME EQ 1 THEN GOTO HAVEDATA ;
+-* Get all second level segments and store in file
+-RUN
+TABLE FILE &SYSRPCTABLE
+WHERE RPC_NAME EQ '&RPC_NAME'
+WHERE PARM_NAME EQ '&PARM_NAMET'
+WHERE TYPE EQ &TYPE
+PRINT RPC_NAME SEG.PARM_NAME 
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD AS SD FORMAT ALPHA
+END
+-RUN
+-READ SD &RCP_NAME.A18. &PARM_NAME.A18. &TYPE.A4. &TYPE_NAME.A32. &DATA_TYPE.A4. &LENGTHA.A4. &PRECISIONA.A4. &NULLABLEA.A4. &SCALEA.A4. &RADIXA.A4. &PARM_ORDERA.A4. &PARM_DESC.A60.
+-*IF &IORETURN EQ 0 GOTO :RPC_CATALOGER_RPCA3_HAVEDATA ;
+-*Loop here to set data for html form, it depends on current iparm or oparm
+-SET &LENGTH = ATODBL(&LENGTHA,'4','D4');
+-SET &PRECISION = ATODBL(&PRECISIONA,'4','D4');
+-SET &NULLABLE = ATODBL(&NULLABLEA,'4','D4');
+-SET &SCALE = ATODBL(&SCALEA,'4','D4');
+-SET &RADIX = ATODBL(&RADIXA,'4','D4');
+-SET &PARM_ORDER = ATODBL(&PARM_ORDERA,'4','D4');
+-:RPC_CATALOGER_RPCA3_HTMLNOW
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transittional//EN">
+<HTML>
+<head>
+<title>RCP Information</title> <link rel="stylesheet" href="cgicss.css" type="text/css">
+<style type="text/css">
+<!--
+BODY { font-family: Arial }
+TEXTAREA.editor { font-family: Courier }
+BODY {background-color: #c9d9ee ;}
+H1 { border-left:1.2em solid yellow; padding:4 0 1 12; font-size:110%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H3 { font-size:100%; font-weight:bold; color:#073A91; white-space:nowrap; }
+H4 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+H5 { font-size:65%; font-weight:normal; color:#073A91; white-space:nowrap; }
+td.text1 { font-size:90%; font-weight:normal; color:#073A91; white-space:nowrap; }
+-->
+</style>
+<SCRIPT language="JavaScript">
+function checkinputs(form)
+{
+-IF &PARM_NAMET NE '*NEW*' GOTO :RPC_CATALOGER_RPCA3_LABNAM1 ;
+if (form.PARM_NAME.value == ' ')
+  {
+   alert("Error - Parameter Name must not be blank");
+   return false;
+   }
+-:RPC_CATALOGER_RPCA3_LABNAM1
+if (form.TYPE_NAME.value == 'CHAR' && form.LENGTH.value <= 0 )
+  {
+   alert("Error - Seletion of Character requires a length value > 0");
+   return false;
+   }
+if (form.TYPE_NAME.value == 'CHAR' )
+   {
+    form.PRECISION.value = 0 ;
+    form.SCALE.value     = 0 ;
+    form.RADIX.value     = 0 ;
+   }
+if (form.TYPE_NAME.value == 'NUM' && form.PRECISION.value <= 0 )
+  {
+   alert("Error - Seletion of Numeric requires a precision value > 0");
+   return false;
+   }
+if (form.TYPE_NAME.value == 'NUM' && form.PRECISION.value >= 10 )
+  {
+   alert("Error - Numeric precision value out of range (1 - 9)");
+   return false;
+   }
+if (form.TYPE_NAME.value == 'NUM' )
+   {
+    form.LENGTH.value = 0 ;
+   }
+-IF &TYPE NE 1 THEN GOTO :RPC_CATALOGER_RPCA3_NOPOCHK ;
+if (form.PARM_ORDER.value == 0 )
+  {
+   alert("Error - Parmeter order number cannot be 0");
+   return false;
+   }
+-:RPC_CATALOGER_RPCA3_NOPOCHK
+}
+</script>
+</head>
+<BODY class="main" style="background-repeat: repeat;"><p><h1>&PAGETITLE</h1></p>
+<form action="webconsole/ibiweb.exe" method="get" name="webfocus" target="_self">
+<input type=hidden name="IBIF_ex" value="&RPCCATALOGER">
+<input type=hidden name="STEP" value="RPCA3A">
+<div align="left">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <hr>
+    <tr> <td><h3>Add/Update Detail For RPC: &nbsp; &nbsp; !IBI.AMP.RPC_NAME;</h3></td> </tr>
+    <tr> </tr>
+    <tr> <td width="100%" colspan="3" valign="middle"> <hr> </td> </tr>
+<tr>
+-IF &PARM_NAMET EQ '*NEW*' GOTO :RPC_CATALOGER_RPCA3_LABINS1 ;
+      <td><h4>Parameter name</h4></td>
+      <td><h3>!IBI.AMP.PARM_NAME;</h3></td>
+-GOTO :RPC_CATALOGER_RPCA3_LABCONT2
+-:RPC_CATALOGER_RPCA3_LABINS1
+      <td class="text1">Parameter Name</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+      <input type=text name="PARM_NAME" value="!IBI.AMP.PARM_NAME;" size="18" maxlength="18" ></td>
+-:RPC_CATALOGER_RPCA3_LABCONT2
+</tr>
+<tr>
+      <td class="text1">Data type</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+      <select size="1" name="TYPE_NAME">
+-IF &DATA_TYPE NE 0 THEN GOTO :RPC_CATALOGER_RPCA3_LABTYPE1 ;
+                <option selected ="yes" value="UNKN">Unknown</option>
+                <option value="INTE">Integer</option>
+                <option value="FLOA">Float</option>
+                <option value="DOUB">Double</option>
+                <option value="DECI">Decimal</option>
+                <option value="CHAR">Character</option>
+                <option value="DATE">Date</option>
+-GOTO :RPC_CATALOGER_RPCA3_LABTYPEDONE
+-:RPC_CATALOGER_RPCA3_LABTYPE1
+-IF &DATA_TYPE NE 1 THEN GOTO :RPC_CATALOGER_RPCA3_LABTYPE2 ;
+                <option value="UNKN">Unknown</option>
+                <option selected ="yes" value="INTE">Integer</option>
+                <option value="FLOA">Float</option>
+                <option value="DOUB">Double</option>
+                <option value="DECI">Decimal</option>
+                <option value="CHAR">Character</option>
+                <option value="DATE">Date</option>
+-GOTO :RPC_CATALOGER_RPCA3_LABTYPEDONE
+-:RPC_CATALOGER_RPCA3_LABTYPE2
+-IF &DATA_TYPE NE 2 THEN GOTO :RPC_CATALOGER_RPCA3_LABTYPE3 ;
+                <option value="UNKN">Unknown</option>
+                <option value="INTE">Integer</option>
+                <option selected ="yes" value="FLOA">Float</option>
+                <option value="DOUB">Double</option>
+                <option value="DECI">Decimal</option>
+                <option value="CHAR">Character</option>
+                <option value="DATE">Date</option>
+-GOTO :RPC_CATALOGER_RPCA3_LABTYPEDONE
+-:RPC_CATALOGER_RPCA3_LABTYPE3
+-IF &DATA_TYPE NE 3 THEN GOTO :RPC_CATALOGER_RPCA3_LABTYPE4 ;
+                <option value="UNKN">Unknown</option>
+                <option value="INTE">Integer</option>
+                <option value="FLOA">Float</option>
+                <option selected ="yes" value="DOUB">Double</option>
+                <option value="DECI">Decimal</option>
+                <option value="CHAR">Character</option>
+                <option value="DATE">Date</option>
+-GOTO :RPC_CATALOGER_RPCA3_LABTYPEDONE
+-:RPC_CATALOGER_RPCA3_LABTYPE4
+-IF &DATA_TYPE NE 4 THEN GOTO :RPC_CATALOGER_RPCA3_LABTYPE5 ;
+                <option value="UNKN">Unknown</option>
+                <option value="INTE">Integer</option>
+                <option value="FLOA">Float</option>
+                <option value="DOUB">Double</option>
+                <option selected ="yes" value="DECI">Decimal</option>
+                <option value="CHAR">Character</option>
+                <option value="DATE">Date</option>
+-GOTO :RPC_CATALOGER_RPCA3_LABTYPEDONE
+-:RPC_CATALOGER_RPCA3_LABTYPE5
+-IF &DATA_TYPE NE 5 THEN GOTO :RPC_CATALOGER_RPCA3_LABTYPE7 ;
+                <option value="UNKN">Unknown</option>
+                <option value="INTE">Integer</option>
+                <option value="FLOA">Float</option>
+                <option value="DOUB">Double</option>
+                <option value="DECI">Decimal</option>
+                <option selected ="yes" value="CHAR">Character</option>
+                <option value="DATE">Date</option>
+-GOTO :RPC_CATALOGER_RPCA3_LABTYPEDONE
+-:RPC_CATALOGER_RPCA3_LABTYPE7
+                <option value="UNKN">Unknown</option>
+                <option value="INTE">Integer</option>
+                <option value="FLOA">Float</option>
+                <option value="DOUB">Double</option>
+                <option value="DECI">Decimal</option>
+                <option value="CHAR">Character</option>
+                <option selected ="yes" value="DATE">Date</option>
+-:RPC_CATALOGER_RPCA3_LABTYPEDONE
+                </select>
+                </td>
+    </tr>
+    <tr>
+      <td class="text1">length (For Character only)</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="LENGTH" value="!IBI.AMP.LENGTH;" size="5" maxlength="5" >&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="text1">Precision</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="PRECISION" size="2" maxlength="2" value="!IBI.AMP.PRECISION;" ></td>
+          <td width="1%" valign="bottom" align="left" > &nbsp;</td>
+    </tr>
+    <tr>
+      <td class="text1">Nullablity</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+            <p><select size="1" name="NULLABLE">
+-IF &NULLABLE NE 0 THEN GOTO :RPC_CATALOGER_RPCA3_LABNULL1 ;
+                <option value="1">Yes</option>
+                <option selected="yes" value="0">NO</option>
+                <option value="2">Unknown</option>
+-GOTO :RPC_CATALOGER_RPCA3_LABNULLDONE
+-:RPC_CATALOGER_RPCA3_LABNULL1
+-IF &NULLABLE NE 1 THEN GOTO :RPC_CATALOGER_RPCA3_LABNULL2 ;
+                <option selected="yes" value="1">Yes</option>
+                <option value="0">NO</option>
+                <option value="2">Unknown</option>
+-GOTO :RPC_CATALOGER_RPCA3_LABNULLDONE
+-:RPC_CATALOGER_RPCA3_LABNULL2
+                <option value="1">Yes</option>
+                <option value="0">NO</option>
+                <option selected="yes" value="2">Unknown</option>
+-:RPC_CATALOGER_RPCA3_LABNULLDONE
+                </select></p>
+                </td>
+          <td width="1%" valign="bottom" align="left" > &nbsp;</td>
+    </tr>
+    <tr>
+      <td class="text1">Scale</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="SCALE" value="!IBI.AMP.SCALE;" size="2" maxlength="2" ></td>
+          <td width="1%" valign="bottom" align="left" > &nbsp;</td>
+    </tr>
+    <tr>
+      <td class="text1">Radix</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="RADIX" value="!IBI.AMP.RADIX;" size="2" maxlength="2" >
+      </td>
+      <td width="1%" valign="bottom" align="left" > &nbsp;</td>
+    </tr>
+    <tr>
+-IF &TYPE NE 1 THEN GOTO :RPC_CATALOGER_RPCA3_NOSHOWPO ;
+      <td class="text1">Parameter order on call</td>
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=text name="PARM_ORDER" value="!IBI.AMP.PARM_ORDER;" size="2" maxlength="2" >
+      </td>
+-GOTO :RPC_CATALOGER_RPCA3_CONT1
+-:RPC_CATALOGER_RPCA3_NOSHOWPO
+      <td width="68%" valign="bottom" align="left" colspan="2" >
+          <input type=hidden name="PARM_ORDER" value="!IBI.AMP.PARM_ORDER;"> </td>
+-:RPC_CATALOGER_RPCA3_CONT1
+      <td width="1%" valign="bottom" align="left" >
+          <!--input type=hidden name="PARM_DESC" value="!IBI.AMP.PARM_DESC;"--></td>
+    </tr>
+    <tr><td class="text1">Parameter description</td><td>
+          <p><input type="text" name="PARM_DESC" value="!IBI.AMP.PARM_DESC;" size="67"></p>
+    </td></tr>
+    <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+-IF &PARM_NAMET EQ '*NEW*' THEN GOTO :RPC_CATALOGER_RPCA3_LABJPN1 ;
+    <tr><td class="text1">
+          <input type="radio" name="NEXT_ACTION" value="0" checked > Update parameter
+          <br>
+          <input type="radio" name="NEXT_ACTION" value="1" > Delete parameter
+    </td></tr>
+-GOTO :RPC_CATALOGER_RPCA3_LABJPN2
+-:RPC_CATALOGER_RPCA3_LABJPN1
+    <input type=hidden name="NEXT_ACTION" value="0">
+-:RPC_CATALOGER_RPCA3_LABJPN2
+    <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td><input type=submit value="Add/Update Information" name="run1" onClick="return checkinputs(this.form);return true"></td>
+            <input type=hidden name="RPC_NAME" value="!IBI.AMP.RPC_NAME;">
+-IF &PARM_NAMET EQ '*NEW*' GOTO :RPC_CATALOGER_RPCA3_LABNAM2 ;
+            <input type=hidden name="PARM_NAME" value="!IBI.AMP.PARM_NAME;">
+-:RPC_CATALOGER_RPCA3_LABNAM2
+            <input type=hidden name="TYPE" value="!IBI.AMP.TYPE;">
+    <td>
+    </td></tr>
+  </form></table>
+</div>
+<p>
+<p>
+<p>
+<p>
+<h5>&nbsp;&nbsp;&nbsp;&nbsp;(Cataloging Resumes With Select Another Parameter to Add/Update or Finish)</h5>
+<p>&nbsp;</p>
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+-:RPC_CATALOGER_RPCA3_CALLRPCA3B
+EX &RPCCATALOGER STEP=RPCA3B,&RPC_NAME
+-EXIT
+
+-***********************************************************************************************
+-:RPC_CATALOGER_RPCA3A
+-* NEXT_ACTION 0 = UPDATE, 1 = DELETE
+-TYPE RPCA3A &RPC_NAME &NEXT_ACTION
+-SET &DATA_TYPE = DECODE &TYPE_NAME (INTE 1 FLOA 2 DOUB 3 DECI 4 CHAR 5 DATE 7 ELSE 0);
+MODIFY FILE &SYSRPCTABLE
+FREEFORM RPC_NAME
+MATCH RPC_NAME
+ON NOMATCH REJECT
+ON MATCH GOTO IRSTSEG
+CASE IRSTSEG
+FREEFORM PARM_NAME TYPE TYPE_NAME DATA_TYPE LENGTH PRECISION NULLABLE SCALE RADIX PARM_ORDER PARM_DESC
+MATCH PARM_NAME TYPE
+-IF &NEXT_ACTION EQ 1 THEN GOTO :RPC_CATALOGER_RPCA3A_LABDEL1 ;
+ON MATCH UPDATE *
+ON NOMATCH INCLUDE
+-GOTO :RPC_CATALOGER_RPCA3A_LABCONT1
+-:RPC_CATALOGER_RPCA3A_LABDEL1
+ON MATCH DELETE
+ON NOMATCH REJECT
+-:RPC_CATALOGER_RPCA3A_LABCONT1
+ENDCASE
+DATA
+RPC_NAME = &RPC_NAME,
+PARM_NAME = &PARM_NAME,
+TYPE = &TYPE,
+TYPE_NAME = &TYPE_NAME,
+DATA_TYPE = &DATA_TYPE,
+-:RPC_CATALOGER_RPCA3A_LABDONE1
+LENGTH = &LENGTH,
+PRECISION = &PRECISION,
+NULLABLE = &NULLABLE,
+SCALE = &SCALE,
+RADIX = &RADIX,
+PARM_ORDER = &PARM_ORDER,
+PARM_DESC = &PARM_DESC,$
+END
+-RUN
+-* EX RPCA2A XXX,&RPC_NAME
+-* Did I do xxx above???
+EX &RPCCATALOGER STEP=RPCA2A,1=XXX,2=&RPC_NAME
+-EXIT
+
+-***********************************************************************************************
+-:RPC_CATALOGER_RPCA3B
+-SET &RPC_NAME = &1 ;
+-TYPE RPCA3B &RPC_NAME
+APP FILEDEF RPCA3B DISK baseapp/rpca3b.dat
+-RUN
+SET ASNAMES = ON
+TABLE FILE SYSRPC
+WHERE RPC_NAME EQ '&RPC_NAME'
+SUM CNT.PARM_NAME AS PCOUNT BY RPC_NAME BY TYPE AS PTYPE 
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD AS rpca3b FORMAT ALPHA
+END
+-RUN
+MODIFY FILE SYSRPC
+COMPUTE PTYPE/I4 = ;
+COMPUTE PCOUNT/I5 = ;
+FIXFORM FROM rpca3b
+MATCH RPC_NAME
+ON NOMATCH REJECT
+ON MATCH COMPUTE
+NUM_IPARMS = IF PTYPE EQ 1 THEN PCOUNT ELSE D.NUM_IPARMS ;
+ON MATCH COMPUTE
+NUM_OPARMS = IF PTYPE EQ 3 THEN PCOUNT ELSE D.NUM_OPARMS ;
+ON MATCH UPDATE NUM_IPARMS NUM_OPARMS
+DATA ON RPCA3B
+END
+-RUN
+EX &RPCCATALOGER
+-EXIT
+
+-***********************************************************************************************
+-:RPC_CATALOGER_RPC2
+-EXIT
+
+-***********************************************************************************************
+-:RPC_CATALOGER_DONE
+-EXIT

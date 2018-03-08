@@ -1,0 +1,20 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+$ For use with MR Extract utility. See MR administrator documentation.          $
+$-------------------------------------------------------------------------------$
+
+FILE=IBIMRROL, SUFFIX=COM, REMARKS='MR Role Data',
+ SEGNAME=IBIMRROL, SEGTYPE=S0
+FIELD=ROLE_HREF,   ALIAS=E01, ACTUAL=A48,  USAGE=A48, TITLE='Role,Reference',
+ DESC='Joins to ROLE_HREF in roles extract.', $
+FIELD=ROLE_NAME,  ALIAS=E02,  ACTUAL=A48,  USAGE=A48, TITLE='Role,Name',
+ DESC='Role Name', $
+FIELD=ROLE_FLAG,  ALIAS=E03,  ACTUAL=A16,  USAGE=A16, TITLE='Role,Flag',
+ DESC='Base role flag', $
+FIELD=FIX_PROP, ALIAS=E04, ACTUAL=A255, USAGE=A255, TITLE='Fixed,Properties',
+ DESC='Privileges that can not be removed from the role', $
+FIELD=OPT_PROP, ALIAS=E05, ACTUAL=A255, USAGE=A255, TITLE='Optional,Properties',
+ DESC='Privileges that are available to the role', $
+FIELD=SEL_PROP, ALIAS=E06, ACTUAL=A255, USAGE=A255, TITLE='Selected,Properties',
+ DESC='Optional privileges that are currently selected', $

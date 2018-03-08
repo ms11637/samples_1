@@ -1,0 +1,11 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=LOCATOR, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: locator',$
+SEGNAME=LOCATOR,   SEGTYPE=S1,
+ FIELDNAME=PIN,           ALIAS=ID_NO,    FORMAT=A9,   INDEX=I, $
+ FIELDNAME=SITE,          ALIAS=SITE,     FORMAT=A25,           $
+ FIELDNAME=FLOOR,         ALIAS=FL,       FORMAT=A3,            $
+ FIELDNAME=ZONE,          ALIAS=ZONE,     FORMAT=A2,            $
+ FIELDNAME=BUS_PHONE,     ALIAS=BTEL,     FORMAT=A5,            $

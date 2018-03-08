@@ -1,0 +1,115 @@
+-*-----------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=Legacy Sample: MAGNIFY example using MOVIE
+-*-----------------------------------------------------------------------------*
+-*
+-*	The below procedure will transform each movie record
+-*  into a search result and feed it to Magnify search
+-*
+-*  Each search result can be categorized with a Movie
+-*  category, directory, and/or rating should a value
+-*  exist
+-*
+-*  Each search result main link will perform a search
+-*  on the movie's code id and the additional link will
+-*  perform a search for movies with the same category
+-*
+-*  searching the hardcoded value movies will return all
+-*  all results
+-*
+-*  with Magnify installed and default timers set, search
+-*  results will be ready in Magnify after 2 minutes
+-*
+-*  see documentation for more info ...
+-*
+
+-*DEFAULTS &WHAT_IS_MAGNIFY_URL:port='localhost:8080';
+-*DEFAULTS &WHAT_IS_ibi_apps='ibi_apps';
+
+ENGINE MAGNIFY SET CONNECTION_ATTRIBUTES MY_PC 'http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/saxfeed'
+ENGINE MAGNIFY SET BASEURL=http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/WFServlet
+ENGINE MAGNIFY SET MIME=text/plain
+ENGINE MAGNIFY SET DATASOURCE=movies
+SET ASNAMES=MIXED
+DEFINE FILE MOVIES
+	S_HARDCODED/TX50='MOVIES';
+	TITLE_URL/A2000='http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/search?q=' || MOVIECODE;
+	LINK_DISPLAY_NAME1/A2000='Similar ' | CATEGORY | ' Movies';
+	LINK_URL1/A512='http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/search?q=' || CATEGORY;
+END
+
+TABLE FILE MOVIES
+PRINT
+     MOVIES.MOVINFO.TITLE AS 'SearchTitle'
+     MOVIES.MOVINFO.MOVIECODE AS 'MagnifyID'
+     MOVIES.MOVINFO.MOVIECODE AS 'WF_INDEX_UNIQUE_KEY'
+     MOVIES.MOVINFO.CATEGORY AS 'C1_CATEGORY'
+     MOVIES.MOVINFO.DIRECTOR AS 'C3_DIRECTOR'
+     MOVIES.MOVINFO.RATING AS 'C2_RATING'
+     MOVIES.MOVINFO.RELDATE AS 'MAGNIFY_DATE'
+     MOVIES.MOVINFO.TITLE AS 'S_Title'
+     MOVIES.MOVINFO.RATING AS 'S_Rating'
+     MOVIES.MOVINFO.CATEGORY AS 'S_CATEGORY'
+     MOVIES.MOVINFO.DIRECTOR AS 'S_DIRECTOR'
+     MOVIES.MOVINFO.RELDATE AS 'S_RELDATE'
+     MOVIES.MOVINFO.MOVIECODE AS 'S_MOVIECODE'
+     TITLE_URL
+     LINK_DISPLAY_NAME1
+     LINK_URL1
+     S_HARDCODED
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD FORMAT MAGNIFY
+END
+
+-SET FOCMSG = IF &FOCERRNUM EQ 0 THEN ' ' ELSE FEXERR(&FOCERRNUM,'A72');
+-IF &RETCODE EQ 403 GOTO RCODE403;
+-IF &RETCODE NE 0 GOTO ERROR;
+-IF &FOCERRNUM NE 0 GOTO ERROR;
+
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv='REFRESH' content='20;url=http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/search?q=movies'></HEAD>
+<BODY>
+<h5>Error Number: !IBI.AMP.FOCERRNUM; - !IBI.AMP.FOCMSG;<br>
+Return Code: !IBI.AMP.RETCODE;<br>
+Lines Processed: !IBI.AMP.LINES;<br><br></h5>
+After indexing there is a short delay before the information can be searched.<br>
+This can take a moment or two, otherwise, Magnify settings can be updated.<br><br>Click the below link to go to Magnify Search if not automatically redirected:<br>
+<a href='http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/search?q=movies'>http://&WHAT_IS_MAGNIFY_URL:port/&WHAT_IS_ibi_apps/search?q=movies</a>
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+
+-RCODE403
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<BODY>
+<h5>Error Number: !IBI.AMP.FOCERRNUM; - !IBI.AMP.FOCMSG;<br>
+Return Code: !IBI.AMP.RETCODE; <i><b><font color="red">(Please confirm that a valid Magnify license is present)</font></b></i><br>
+Lines Processed: !IBI.AMP.LINES;<br><br></h5>
+
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT
+
+-ERROR
+-HTMLFORM BEGIN
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<BODY>
+<h5>Error Number: !IBI.AMP.FOCERRNUM; - !IBI.AMP.FOCMSG;<br>
+Return Code: !IBI.AMP.RETCODE;<br>
+Lines Processed: !IBI.AMP.LINES;<br><br></h5>
+For error numbers greater than zero, please review the procedure syntax, check ECHO statements, or refer to the WebFOCUS documentation.<br>
+For return codes 1-5, please refer to the Magnify documentation.  For all others, refer to documentation on HTTP response status codes (e.g.: <a href=http://en.wikipedia.org/wiki/List_of_HTTP_status_codes>List of HTTP status codes on Wikipedia</a>).
+</BODY>
+</HTML>
+-HTMLFORM END
+-EXIT

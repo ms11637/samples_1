@@ -1,0 +1,10 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILE=WORLD, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: FOCUS World Database Metadata', $
+SEGNAME=CONT,SEGTYPE=S1
+    FIELD=CONTINENT,CONTINENT,A20,$
+SEGNAME=COUNTRY,SEGTYPE=S1,PARENT=CONT
+    FIELD=COUNTRY,,A10,$
+    FIELD=POPULATION,POP,D12,$

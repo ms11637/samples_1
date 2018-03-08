@@ -1,0 +1,215 @@
+-*-------------------------------------------------------------------------------
+-* Copyright (c) Information Builders, Inc.  All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=Procedure to generate OeS Data Adapter Security Files
+-*-------------------------------------------------------------------------------
+-* Oracle eBusiness Suite (OeS) Data Adapter
+-*   aka "Oracle Applications"
+-* Filename: oesfiles.fex
+-* Description: Generate OeS Data Adapter Security Files.  These files
+-*              are used at MFD parse time to determine user ACCESS=R
+-*              restrictions on individual TABLEs
+-*-------------------------------------------------------------------------------
+ 
+-GOTO :DEFAULTS
+ 
+-:DEFAULTS
+ 
+-DEFAULTS &OES_CONN = 'VIS'
+ 
+-* check if connection is available first
+SQL SQLORA PING &OES_CONN
+END
+-RUN
+-IF (&RETCODE NE 0) THEN GOTO :FAILCONN ;
+ 
+SET HOLDLIST=PRINTONLY
+SET ASNAMES=ON
+SET ALL=OFF
+JOIN CLEAR *
+ 
+-*---------------------------------------------------------------------
+-* Create the OESSEC App Namespace, if it already exists it will NOT
+-*  overwrite this directory.
+-*---------------------------------------------------------------------
+-SET &ECHO = 'OFF';
+SET EMGSRV=OFF
+ENGINE SQLORA SET VARCHAR OFF
+ENGINE ORAAPPS SET APPS ERASEALL OFF
+APP CREATE OESSEC
+APP HOLD OESSEC
+ 
+ 
+-*---------------------------------------------------------------------
+-* Initial Cleanup of Old Files
+-*---------------------------------------------------------------------
+ 
+APP DELETEF OESSEC ORAUSER FOCUS
+APP DELETEF OESSEC ORAUSER MASTER
+APP DELETEF OESSEC ORASYSF FOCUS
+APP DELETEF OESSEC ORASYSF MASTER
+APP DELETEF OESSEC ORAUSRAP FOCUS
+APP DELETEF OESSEC ORAUSRAP MASTER
+-GOTO :ORAUSER
+ 
+-*---------------------------------------------------------------------
+-* ORAUSER - Oracle Apps System User Info
+-*---------------------------------------------------------------------
+-:ORAUSER
+ 
+SQL SQLORA
+  SELECT USER_NAME,
+         USER_ID,
+         START_DATE,
+         END_DATE
+    FROM APPLSYS.FND_USER
+   ORDER BY 1,2,3,4;
+TABLE FILE SQLOUT
+SUM
+USER_NAME
+USER_ID/I11
+START_DATE
+END_DATE
+BY USER_NAME NOPRINT
+BY USER_ID NOPRINT
+BY START_DATE NOPRINT
+BY END_DATE NOPRINT
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD AS ORAUSER FORMAT FOCUS
+END
+-RUN
+-IF &FOCERRNUM EQ 0 THEN GOTO :ORAUOK;
+-TYPE ORAUSER.FOC: Failed to create file
+-GOTO :CLEANUP
+-:ORAUOK
+-TYPE ORAUSER.FOC: Oracle eBusiness Suite User Info
+-TYPE ...Loaded
+ 
+-*---------------------------------------------------------------------
+-* ORASYSF - Oracle Apps System Table Info
+-*
+-* < NOTE: a table may belong to more than one application >
+-*---------------------------------------------------------------------
+ 
+SQL SQLORA
+  SELECT TABLE_NAME,
+         TABLE_ID,
+         APPLICATION_ID AS "APPL_ID"
+-*         ,'Table'
+    FROM APPLSYS.FND_TABLES
+  UNION
+  SELECT VIEW_NAME,
+         VIEW_ID,
+         APPLICATION_ID
+-*         ,'View'
+    FROM APPLSYS.FND_VIEWS
+  ORDER BY 1, 2, 3;
+TABLE FILE SQLOUT
+SUM
+FST.TABLE_NAME
+FST.TABLE_ID/I11
+FST.APPL_ID/I11
+-* E04
+BY TABLE_NAME NOPRINT
+BY TABLE_ID NOPRINT
+BY APPL_ID NOPRINT
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD AS ORASYSF FORMAT FOCUS
+END
+-RUN
+-IF &FOCERRNUM EQ 0 THEN GOTO :ORASFOK;
+-TYPE ORASYSF.FOC: Failed to create file
+-GOTO :CLEANUP
+-:ORASFOK
+-TYPE ORASYSF.FOC: Oracle eBusiness Suite Table Info
+-TYPE ...Loaded
+ 
+-*---------------------------------------------------------------------
+-* ORAUSRAP - Oracle Apps System User Application Info
+-*---------------------------------------------------------------------
+ 
+SQL SQLORA
+  SELECT DISTINCT (USER_ID),
+-*       RESPONSIBILITY_ID AS "RESP_ID",
+         RESPONSIBILITY_APPLICATION_ID AS "APPL_ID",
+         START_DATE,
+         END_DATE
+    FROM APPLSYS.FND_USER_RESP_GROUPS
+   ORDER BY 1,2,3,4;
+TABLE FILE SQLOUT
+SUM
+USER_ID/I11
+-*RESP_ID/I11
+APPL_ID/I11
+START_DATE
+END_DATE
+BY USER_ID NOPRINT
+-*BY RESP_ID NOPRINT
+BY APPL_ID NOPRINT
+BY START_DATE NOPRINT
+BY END_DATE NOPRINT
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD AS ORAUSRAP FORMAT FOCUS
+END
+-RUN
+-IF &FOCERRNUM EQ 0 THEN GOTO :APPLOK;
+SQL SQLORA
+  SELECT DISTINCT (USER_ID),
+-*       RESPONSIBILITY_ID AS "RESP_ID",
+         RESPONSIBILITY_APPLICATION_ID AS "APPL_ID",
+         START_DATE,
+         END_DATE
+    FROM APPS.FND_USER_RESP_GROUPS
+   ORDER BY 1,2,3,4;
+TABLE FILE SQLOUT
+SUM
+USER_ID/I11
+-*RESP_ID/I11
+APPL_ID/I11
+START_DATE
+END_DATE
+BY USER_ID NOPRINT
+-*BY RESP_ID NOPRINT
+BY APPL_ID NOPRINT
+BY START_DATE NOPRINT
+BY END_DATE NOPRINT
+ON TABLE SET SHORTPATH SQL
+ON TABLE HOLD AS ORAUSRAP FORMAT FOCUS
+END
+-RUN
+-IF &FOCERRNUM EQ 0 THEN GOTO :APPSOK;
+-TYPE ORAUSRAP.FOC: Failed to create file
+-GOTO :CLEANUP
+-:APPLOK
+-:APPSOK
+-TYPE ORAUSRAP.FOC: Oracle eBusiness Suite App Info
+-TYPE ...Loaded
+ 
+-GOTO :CLEANUP
+ 
+-*-----------------------------------------------------------------
+  Connection Failure
+-*-----------------------------------------------------------------
+-:FAILCONN
+ 
+-IF (&RETCODE NE 01034) THEN GOTO :FAILOTHR ;
+-TYPE Oracle eBusiness Suite Oracle database &OES_CONN not available!!
+-GOTO :DONE
+ 
+-:FAILOTHR
+-TYPE Oracle eBusiness Suite Connect Failure &OES_CONN : &RETCODE
+-GOTO :DONE
+ 
+ 
+-*---------------------------------------------------------------------
+-* clean up
+-*---------------------------------------------------------------------
+ 
+-:CLEANUP
+ 
+APP DELETEF OESSEC FOC$HOLD FOCTEMP
+APP DELETEF OESSEC FOC$HOLD MASTER
+ENGINE ORAAPPS SET APPS ERASEALL ON
+ 
+-:DONE
+ 
+-EXIT

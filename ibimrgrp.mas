@@ -1,0 +1,14 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+$ For use with MR Extract utility. See MR administrator documentation.          $
+$-------------------------------------------------------------------------------$
+
+FILE=IBIMRGRP, SUFFIX=COM, REMARKS='MR Group Data',
+ SEGNAME=IBIMRGRP, SEGTYPE=S0
+FIELD=GROUP_HREF, ALIAS=E01, ACTUAL=A13, USAGE=A13, TITLE='Group,Reference',
+ DESC='Group reference. Joins many to many with user extract files.',$
+FIELD=GROUP_DESC,ALIAS=E02,ACTUAL=A256,USAGE=A256,TITLE='Group Name',
+ DESC='Group name.', $
+FIELD=DOMAIN_HTM, ALIAS=E03, ACTUAL=A21, USAGE=A21, TITLE='Domain,Reference',
+ DESC='Joins many to one with DOMAIN_HTM in domains extract.',$

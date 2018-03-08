@@ -1,0 +1,25 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=CASHFLOW, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: cashflow',$
+SEGNAME=CASHFLOW, SEGTYPE=S1
+ FIELD=CASH_DATE, ALIAS=CASH_DATE, FORMAT=MDYY, TITLE='Date of ,Statement',
+  DESC='Date of Statement',$
+ FIELD=LONG_TERM_DEBT, ALIAS=LONG_TERM_DEBT, FORMAT=D16,
+   TITLE='   Long,Term Debt', DESC='Long Term Debt',$
+ FIELD=INTER_TERM_DEBT, ALIAS=INTER_TERM_DEBT, FORMAT=D16,
+   TITLE='Intermediate,Term Debt', DESC='Intermediate Term Debt',$
+ FIELD=SHRT_TERM_DEBT, ALIAS=SHRT_TERM_DEBT, FORMAT=D16,
+   TITLE='   Short,Term Debt', DESC='Short Term Debt',$
+ FIELD=LONG_TERM_EQUIT, ALIAS=LONG_TERM_EQUIT, FORMAT=D16,
+   TITLE='    Long,Term Equity', DESC='Long Term Equity',$
+ FIELD=INTER_TERM_EQUIT, ALIAS=INTER_TERM_EQUIT, FORMAT=D16,
+   TITLE='Intermediate,Term Equity', DESC='Intermediate Term Equity',$
+ FIELD=SHRT_TERM_EQUIT, ALIAS=SHRT_TERM_EQUIT, FORMAT=D16,
+   TITLE='     Short,Term Equity', DESC='Short Term Equity',$
+ DEFINE CASH_QTR/QYY = CASH_DATE ;$
+ DEFINE CASH_MONTH/MYY = CASH_DATE ;$
+ DEFINE LONG_TERM_VARIANCE/D10 = LONG_TERM_EQUIT - LONG_TERM_DEBT ;$
+ DEFINE INTER_TERM_VARIANCE/D10 = INTER_TERM_EQUIT - INTER_TERM_DEBT ;$
+ DEFINE SHRT_TERM_VARIANCE/D12 = SHRT_TERM_EQUIT - SHRT_TERM_DEBT ;$

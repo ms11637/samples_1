@@ -1,0 +1,23 @@
+-*------------------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ *
+-*FEX_DESCRIPTION=Legacy Sample: Loader for courses (MFD with TX fields).
+-*------------------------------------------------------------------------------------*
+CREATE FILE COURSES
+MODIFY FILE COURSES
+FIXFORM COURSE_CODE/6 COURSE_NAME/30 DURATION/3 X1 DESCRIPTION/TX
+MATCH COURSE_CODE
+ON NOMATCH INCLUDE
+ON MATCH REJECT
+DATA
+101   BASIC REPORT PREP, FILE MAINT   3 This course provides the DP
+professional with the skills needed to create, maintain, and report
+from FOCUS databases.
+%$
+200   DATABASE DESIGN                 2 Anyone responsible for designing
+FOCUS databases will benefit from this course, which provides the skills
+needed to design large, complex databases and tune existing ones.
+%$
+201   ADVANCED TECHNIQUES             3 This is a course in FOCUS
+efficiencies.
+%$
+END

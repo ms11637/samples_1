@@ -1,0 +1,37 @@
+-*-----------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=Maintain IVP test using CAR
+-*-----------------------------------------------------------------------------*
+
+MAINTAIN FILE car
+
+$$Declarations
+
+Case Top
+
+Infer car.BODY.BODYTYPE into updstk2;
+Infer car.BODY.BODYTYPE into carstk2;
+
+Winform Show Form1;
+
+EndCase
+
+Case getdata
+-* add AT servername for remote Call
+-* example: call mntget1 AT EDASERVE into carstk2
+call mntget1 AT LOOPBACK into carstk2;
+EndCase
+
+Case upddata
+-* add AT servername for remote Call
+-* example: call mntupd1 AT EDASERVE from updstk2
+call mntupd1 AT LOOPBACK from updstk2;
+EndCase
+
+Case showfrm2
+compute carstk2.focindex = Form1.HTMLTable2.ClickRow;
+for 1 copy from carstk2(carstk2.focindex) into updstk2;
+Winform Show Form2;
+EndCase
+
+END

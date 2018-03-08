@@ -1,0 +1,458 @@
+-*-----------------------------------------------------------------------------*
+-* Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@
+-*FEX_DESCRIPTION=Maintain Initial Verification Procedure (mntivp.wfm)
+-*-----------------------------------------------------------------------------*
+
+MAINTAIN
+ 
+MODULE IMPORT (webbase2 errors);
+ 
+$$ Start of Form1
+ 
+describe
+WF_Form1 = ( IWCForm('Form1',::Document) +
+  Text1/IWCControlStaticText,
+  Text7/IWCControlStaticText,
+  Text2/IWCControlStaticText,
+  HTMLTable2/IWCControlHTMLTable,
+  Button1/IWCControlButton,
+  Button3/IWCControlButton
+           )
+ 
+  case Startup
+    AddControl(Text1,'Text1');
+    AddControl(Text7,'Text7');
+    AddControl(Text2,'Text2');
+    AddControl(HTMLTable2,'HTMLTable2');
+    AddControl(Button1,'Button1');
+    AddControl(Button3,'Button3');
+  endcase
+ 
+  case Before_Show
+    self.StyleSheet = 'Default';
+    self.Title = 'Untitled';
+    self.SetPosition(0,0);
+    self.SetSize(654,449);
+    self.SetForeColor(0,0,0);
+    self.SetBackColor(255,251,240);
+    self.SetFont('MS Sans Serif,Sans-serif', 8, 400, 0);
+    Text1.SetPosition(120,30);
+    Text1.SetSize(310,40);
+    Text1.Caption = 'WebFOCUS Maintain Test';
+    Text1.Alignment = 1;
+    Text1.BorderWidth = 1;
+    Text1.TabIndex = 0;
+    Text1.SetFont('MS Sans Serif,Sans-serif', 14, 700, fontItalic);
+    Text1.SetForeColor(0,128,128);
+    Text7.SetPosition(149,260);
+    Text7.SetSize(300,20);
+    Text7.Caption = '1) Click get data button to display records';
+    Text7.Alignment = 1;
+    Text7.BorderWidth = 1;
+    Text7.TabIndex = 1;
+    Text7.SetFont('MS Sans Serif,Sans-serif', 10, 700, fontItalic);
+    Text7.SetForeColor(128,0,0);
+    Text2.SetPosition(130,290);
+    Text2.SetSize(300,20);
+    Text2.Caption = '2) Click on value for Sales to update';
+    Text2.Alignment = 1;
+    Text2.BorderWidth = 1;
+    Text2.TabIndex = 2;
+    Text2.SetFont('MS Sans Serif,Sans-serif', 10, 700, fontItalic);
+    Text2.SetForeColor(128,0,0);
+    HTMLTable2.SetPosition(10,100);
+    HTMLTable2.SetSize(616,110);
+    HTMLTable2.RealHeaderRowHeight = 23;
+    HTMLTable2.RealBodyRowHeight = 23;
+    HTMLTable2.Columns(1).HeaderTitle = '';
+    HTMLTable2.Columns(1).RealWidth = 20;
+    HTMLTable2.Columns(1).Justification = 2;
+    HTMLTable2.Columns(1).IsRowNumColumn = 1;
+    HTMLTable2.Columns(2).HeaderTitle = 'Country';
+    HTMLTable2.Columns(2).RealWidth = 90;
+    HTMLTable2.Columns(3).HeaderTitle = 'Car';
+    HTMLTable2.Columns(3).RealWidth = 132;
+    HTMLTable2.Columns(4).HeaderTitle = 'Model';
+    HTMLTable2.Columns(4).RealWidth = 188;
+    HTMLTable2.Columns(5).HeaderTitle = 'Bodytype';
+    HTMLTable2.Columns(5).RealWidth = 104;
+    HTMLTable2.Columns(6).HeaderTitle = 'Sales';
+    HTMLTable2.Columns(6).SetHeaderForeColor(128,0,0);
+    HTMLTable2.Columns(6).RealWidth = 56;
+    HTMLTable2.Columns(6).HasLinksOnBody = 1;
+    HTMLTable2.Columns(6).Justification = 2;
+    HTMLTable2.Border = 2;
+    HTMLTable2.BorderWidth = 1;
+    HTMLTable2.TabIndex = 3;
+    HTMLTable2.Events.Add('ClickLink','');
+    Button1.SetPosition(170,380);
+    Button1.SetSize(90,30);
+    Button1.Caption = 'get data';
+    Button1.TabStop = 1;
+    Button1.TabIndex = 4;
+    Button1.Events.Add('Click','click');
+    Button3.SetPosition(380,380);
+    Button3.SetSize(80,30);
+    Button3.Caption = 'exit';
+    Button3.TabStop = 1;
+    Button3.TabIndex = 5;
+    Button3.Events.Add('Click','click');
+  endcase
+ 
+  Case OnButton3_Click
+  self.WinExit();
+  EndCase
+ 
+  Case OnButton1_Click
+  Perform getdata( );
+  EndCase
+ 
+  Case OnHTMLTable2_ClickLink
+  Perform showfrm2( );
+  EndCase
+ 
+  case IWCUpdateData takes dir/i1;
+    declare i/i8;
+    self.IWCUpdateDataBackImage(dir,'');
+    HTMLTable2.IWCUpdateData(dir);
+    repeat ::carstk2.FocCount; i = 1;
+      HTMLTable2.IWCUpdateDataCol(dir,2,carstk2(i).COUNTRY,i);
+      HTMLTable2.IWCUpdateDataCol(dir,3,carstk2(i).CAR,i);
+      HTMLTable2.IWCUpdateDataCol(dir,4,carstk2(i).MODEL,i);
+      HTMLTable2.IWCUpdateDataCol(dir,5,carstk2(i).BODYTYPE,i);
+      HTMLTable2.IWCUpdateDataCol(dir,6,carstk2(i).SALES,i);
+    endrepeat i = i + 1;
+  endcase
+ 
+  case IWCTriggerEvents
+    if NextCase EQ 'ONBUTTON3_CLICK' Then begin
+      OnButton3_Click();
+    endbegin
+    if NextCase EQ 'ONBUTTON1_CLICK' Then begin
+      OnButton1_Click();
+    endbegin
+    if NextCase EQ 'ONHTMLTABLE2_CLICKLINK' Then begin
+      OnHTMLTable2_ClickLink();
+    endbegin
+  endcase
+ 
+  case IWCGenScriptHandlers
+    declare x115/IWCTriggerGen =
+    <'Button3','Click'>;
+    declare x182/IWCTriggerGen =
+    <'Button1','Click'>;
+    declare x470/IWCTriggerGen =
+    <'HTMLTable2','ClickLink'>;
+    x115.GenHtml(self);
+    x182.GenHtml(self);
+    x470.GenHtml(self);
+  endcase
+ 
+enddescribe
+ 
+$$ Start of Form2
+ 
+describe
+WF_Form2 = ( IWCForm('Form2',::Document) +
+  Text1/IWCControlStaticText,
+  Country_Text/IWCControlStaticText,
+  Car_Text/IWCControlStaticText,
+  Model_Text/IWCControlStaticText,
+  Bodytype_Text/IWCControlStaticText,
+  Sales_Text/IWCControlStaticText,
+  Text7/IWCControlStaticText,
+  Button2/IWCControlButton,
+  Button3/IWCControlButton,
+  Country_Edit/IWCControlEdit,
+  Car_Edit/IWCControlEdit,
+  Model_Edit/IWCControlEdit,
+  Bodytype_Edit/IWCControlEdit,
+  Sales_Edit/IWCControlEdit
+           )
+ 
+  case Startup
+    AddControl(Text1,'Text1');
+    AddControl(Country_Text,'Country_Text');
+    AddControl(Car_Text,'Car_Text');
+    AddControl(Model_Text,'Model_Text');
+    AddControl(Bodytype_Text,'Bodytype_Text');
+    AddControl(Sales_Text,'Sales_Text');
+    AddControl(Text7,'Text7');
+    AddControl(Button2,'Button2');
+    AddControl(Button3,'Button3');
+    AddControl(Country_Edit,'Country_Edit');
+    AddControl(Car_Edit,'Car_Edit');
+    AddControl(Model_Edit,'Model_Edit');
+    AddControl(Bodytype_Edit,'Bodytype_Edit');
+    AddControl(Sales_Edit,'Sales_Edit');
+  endcase
+ 
+  case Before_Show
+    self.StyleSheet = 'Default';
+    self.Title = 'Untitled';
+    self.SetPosition(0,0);
+    self.SetSize(654,449);
+    self.SetForeColor(0,0,0);
+    self.SetBackColor(255,251,240);
+    self.SetFont('MS Sans Serif,Sans-serif', 8, 400, 0);
+    Text1.SetPosition(20,20);
+    Text1.SetSize(220,20);
+    Text1.Caption = 'WebFOCUS Maintain Test';
+    Text1.Alignment = 1;
+    Text1.BorderWidth = 1;
+    Text1.TabIndex = 0;
+    Text1.SetFont('MS Sans Serif,Sans-serif', 10, 700, fontItalic);
+    Text1.SetForeColor(0,128,128);
+    Country_Text.SetPosition(128,150);
+    Country_Text.SetSize(41,18);
+    Country_Text.Caption = 'Country';
+    Country_Text.Alignment = 2;
+    Country_Text.BorderWidth = 1;
+    Country_Text.TabIndex = 1;
+    Country_Text.SetForeColor(0,0,0);
+    Car_Text.SetPosition(148,178);
+    Car_Text.SetSize(21,18);
+    Car_Text.Caption = 'Car';
+    Car_Text.Alignment = 2;
+    Car_Text.BorderWidth = 1;
+    Car_Text.TabIndex = 2;
+    Car_Text.SetForeColor(0,0,0);
+    Model_Text.SetPosition(135,206);
+    Model_Text.SetSize(34,18);
+    Model_Text.Caption = 'Model';
+    Model_Text.Alignment = 2;
+    Model_Text.BorderWidth = 1;
+    Model_Text.TabIndex = 3;
+    Model_Text.SetForeColor(0,0,0);
+    Bodytype_Text.SetPosition(120,234);
+    Bodytype_Text.SetSize(49,18);
+    Bodytype_Text.Caption = 'Bodytype';
+    Bodytype_Text.Alignment = 2;
+    Bodytype_Text.BorderWidth = 1;
+    Bodytype_Text.TabIndex = 4;
+    Bodytype_Text.SetForeColor(0,0,0);
+    Sales_Text.SetPosition(140,280);
+    Sales_Text.SetSize(31,18);
+    Sales_Text.Caption = 'Sales';
+    Sales_Text.Alignment = 2;
+    Sales_Text.BorderWidth = 1;
+    Sales_Text.TabIndex = 5;
+    Sales_Text.SetForeColor(128,0,0);
+    Text7.SetPosition(100,100);
+    Text7.SetSize(380,30);
+    Text7.Caption = 'Enter new value for Sales and click update button';
+    Text7.Alignment = 1;
+    Text7.BorderWidth = 1;
+    Text7.TabIndex = 6;
+    Text7.SetFont('MS Sans Serif,Sans-serif', 10, 700, fontItalic);
+    Text7.SetForeColor(128,0,0);
+    Button2.SetPosition(150,380);
+    Button2.SetSize(80,30);
+    Button2.Caption = 'update';
+    Button2.TabStop = 1;
+    Button2.TabIndex = 7;
+    Button2.Events.Add('Click','click');
+    Button3.SetPosition(280,380);
+    Button3.SetSize(80,30);
+    Button3.Caption = 'back';
+    Button3.TabStop = 1;
+    Button3.TabIndex = 8;
+    Button3.Events.Add('Click','click');
+    Country_Edit.SetPosition(172,150);
+    Country_Edit.SetSize(117,23);
+    Country_Edit.BoundVarType = 'A';
+    Country_Edit.BoundVarLength = 10;
+    Country_Edit.AcceptType = car.ORIGIN.COUNTRY.GetAcceptInfo(Country_Edit
+.AcceptItems.FocCount);
+    car.ORIGIN.COUNTRY.GetAccept(Country_Edit.AcceptItems);
+    Country_Edit.ReadOnly = 1;
+    Country_Edit.TabStop = 1;
+    Country_Edit.TabIndex = 9;
+    Country_Edit.IsBoundToVar = 1;
+    Country_Edit.SetForeColor(160,160,164);
+    Car_Edit.SetPosition(172,178);
+    Car_Edit.SetSize(183,23);
+    Car_Edit.BoundVarType = 'A';
+    Car_Edit.BoundVarLength = 16;
+    Car_Edit.AcceptType = car.COMP.CAR.GetAcceptInfo(Car_Edit.AcceptItems
+.FocCount);
+    car.COMP.CAR.GetAccept(Car_Edit.AcceptItems);
+    Car_Edit.ReadOnly = 1;
+    Car_Edit.TabStop = 1;
+    Car_Edit.TabIndex = 10;
+    Car_Edit.IsBoundToVar = 1;
+    Car_Edit.SetForeColor(160,160,164);
+    Model_Edit.SetPosition(172,206);
+    Model_Edit.SetSize(271,23);
+    Model_Edit.BoundVarType = 'A';
+    Model_Edit.BoundVarLength = 24;
+    Model_Edit.AcceptType = car.CARREC.MODEL.GetAcceptInfo(Model_Edit
+.AcceptItems.FocCount);
+    car.CARREC.MODEL.GetAccept(Model_Edit.AcceptItems);
+    Model_Edit.ReadOnly = 1;
+    Model_Edit.TabStop = 1;
+    Model_Edit.TabIndex = 11;
+    Model_Edit.IsBoundToVar = 1;
+    Model_Edit.SetForeColor(160,160,164);
+    Bodytype_Edit.SetPosition(172,234);
+    Bodytype_Edit.SetSize(139,23);
+    Bodytype_Edit.BoundVarType = 'A';
+    Bodytype_Edit.BoundVarLength = 12;
+    Bodytype_Edit.AcceptType = car.BODY.BODYTYPE.GetAcceptInfo(Bodytype_Edit
+.AcceptItems.FocCount);
+    car.BODY.BODYTYPE.GetAccept(Bodytype_Edit.AcceptItems);
+    Bodytype_Edit.ReadOnly = 1;
+    Bodytype_Edit.TabStop = 1;
+    Bodytype_Edit.TabIndex = 12;
+    Bodytype_Edit.IsBoundToVar = 1;
+    Bodytype_Edit.SetForeColor(160,160,164);
+    Sales_Edit.SetPosition(174,280);
+    Sales_Edit.SetSize(43,23);
+    Sales_Edit.BoundVarType = 'N';
+    Sales_Edit.BoundVarLength = 6;
+    Sales_Edit.AcceptType = car.BODY.SALES.GetAcceptInfo(Sales_Edit.AcceptItems
+.FocCount);
+    car.BODY.SALES.GetAccept(Sales_Edit.AcceptItems);
+    Sales_Edit.TabStop = 1;
+    Sales_Edit.TabIndex = 13;
+    Sales_Edit.IsBoundToVar = 1;
+  endcase
+ 
+  Case OnButton3_Click
+  Perform getdata( );
+  self.WinClose();
+  EndCase
+ 
+  Case OnButton2_Click
+  Perform upddata( );
+  EndCase
+ 
+  Case OnForm2_Open
+  winform set Form2.Sales_Edit.Focus to Here;
+  EndCase
+ 
+  Case OnOpen
+    OnForm2_Open();
+  EndCase
+ 
+  case IWCUpdateData takes dir/i1;
+    declare i/i8;
+    self.IWCUpdateDataBackImage(dir,'');
+    updstk2().COUNTRY = Country_Edit.IWCUpdateData(dir,updstk2().COUNTRY);
+    updstk2().CAR = Car_Edit.IWCUpdateData(dir,updstk2().CAR);
+    updstk2().MODEL = Model_Edit.IWCUpdateData(dir,updstk2().MODEL);
+    updstk2().BODYTYPE = Bodytype_Edit.IWCUpdateData(dir,updstk2().BODYTYPE);
+    updstk2().SALES = Sales_Edit.IWCUpdateData(dir,updstk2().SALES);
+  endcase
+ 
+  case IWCTriggerEvents
+    if NextCase EQ 'ONBUTTON3_CLICK' Then begin
+      OnButton3_Click();
+    endbegin
+    if NextCase EQ 'ONBUTTON2_CLICK' Then begin
+      OnButton2_Click();
+    endbegin
+  endcase
+ 
+  case IWCGenScriptHandlers
+    declare x203/IWCTriggerGen =
+    <'Button3','Click'>;
+    declare x272/IWCTriggerGen =
+    <'Button2','Click'>;
+    x203.GenHtml(self);
+    x272.GenHtml(self);
+  endcase
+ 
+enddescribe
+ 
+describe IWCSheet_Default = (IWCStyleSheet +
+  IWCControlButton/IWCControlButton,
+  IWCControlRadioGroup/IWCControlRadioGroup,
+  IWCControlCheck/IWCControlCheck,
+  IWCControlHTML/IWCControlHTML,
+  IWCControlEdit/IWCControlEdit,
+  IWCControlEditMultiLine/IWCControlEditMultiLine,
+  IWCControlStaticText/IWCControlStaticText,
+  IWCControlImage/IWCControlImage,
+  IWCControlGroupBox/IWCControlGroupBox,
+  IWCControlActiveX/IWCControlActiveX,
+  IWCControlAXGrid/IWCControlAXGrid,
+  IWCControlComboBox/IWCControlComboBox,
+  IWCControlListBox/IWCControlListBox,
+  IWCControlHTMLTable/IWCControlHTMLTable,
+  IWCControlGrid/IWCControlGrid
+  )
+  case Startup
+    self.Name = 'Default';
+    AddControl(IWCControlButton,'IWCControlButton');
+    AddControl(IWCControlRadioGroup,'IWCControlRadioGroup');
+    AddControl(IWCControlCheck,'IWCControlCheck');
+    AddControl(IWCControlHTML,'IWCControlHTML');
+    AddControl(IWCControlEdit,'IWCControlEdit');
+    AddControl(IWCControlEditMultiLine,'IWCControlEditMultiLine');
+    AddControl(IWCControlStaticText,'IWCControlStaticText');
+    AddControl(IWCControlImage,'IWCControlImage');
+    AddControl(IWCControlGroupBox,'IWCControlGroupBox');
+    AddControl(IWCControlActiveX,'IWCControlActiveX');
+    AddControl(IWCControlAXGrid,'IWCControlAXGrid');
+    AddControl(IWCControlComboBox,'IWCControlComboBox');
+    AddControl(IWCControlListBox,'IWCControlListBox');
+    AddControl(IWCControlHTMLTable,'IWCControlHTMLTable');
+    AddControl(IWCControlGrid,'IWCControlGrid');
+    IWCControlButton.TabIndex = 0;
+    IWCControlButton.SetBackColor(192,192,192);
+    IWCControlRadioGroup.BorderWidth = 1;
+    IWCControlRadioGroup.TabIndex = 0;
+    IWCControlCheck.TabIndex = 0;
+    IWCControlHTML.BorderWidth = 1;
+    IWCControlHTML.TabIndex = 0;
+    IWCControlEdit.TabIndex = 0;
+    IWCControlEdit.SetBackColor(255,255,255);
+    IWCControlEditMultiLine.TabIndex = 0;
+    IWCControlEditMultiLine.SetBackColor(255,255,255);
+    IWCControlStaticText.BorderWidth = 1;
+    IWCControlStaticText.TabIndex = 0;
+    IWCControlImage.BorderWidth = 1;
+    IWCControlImage.TabIndex = 0;
+    IWCControlGroupBox.BorderWidth = 2;
+    IWCControlGroupBox.TabIndex = 0;
+    IWCControlActiveX.TabIndex = 0;
+    IWCControlAXGrid.TabIndex = 0;
+    IWCControlAXGrid.SetBackColor(255,255,255);
+    IWCControlComboBox.Type = 2;
+    IWCControlComboBox.TabIndex = 0;
+    IWCControlComboBox.SetBackColor(255,255,255);
+    IWCControlListBox.TabIndex = 0;
+    IWCControlListBox.SetBackColor(255,255,255);
+    IWCControlHTMLTable.BorderWidth = 1;
+    IWCControlHTMLTable.TabIndex = 0;
+    IWCControlGrid.TabIndex = 0;
+  endcase
+enddescribe
+ 
+describe IWCMyDocument = (IWCDocument +
+  IWCSheet_Default/IWCSheet_Default
+  )
+  case Startup
+    AppName = 'mntivp';
+    self.PainterVersion = '4.3.6-1210';
+    AddForm(::Form1);
+    AddForm(::Form2);
+    AddStyleSheet(IWCSheet_Default);
+  endcase
+ 
+  case DoTrigger takes NextCase/a0;
+    if NextCase EQ 'GETDATA' then
+      perform getdata;
+    if NextCase EQ 'UPDDATA' then
+      perform upddata;
+    if NextCase EQ 'SHOWFRM2' then
+      perform showfrm2;
+  endcase
+enddescribe
+ 
+declare Form1/WF_Form1;
+declare Form2/WF_Form2;
+declare Document/IWCMyDocument;
+ 
+END

@@ -1,0 +1,9 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=SALHIST, SUFFIX=FOC, REMARKS='Legacy Metadata Sample: salhist (salary history)',$
+SEGNAME=SLHISTRY, SEGTYPE=SH2
+ FIELDNAME=PIN,        ALIAS=ID,     FORMAT=A9,     INDEX=I,  $
+ FIELDNAME=EFFECTDATE, ALIAS=EDAT,   FORMAT=YMD,              $
+ FIELDNAME=OLDSALARY,  ALIAS=OSAL,   FORMAT=D12.2,            $

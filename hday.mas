@@ -1,0 +1,8 @@
+$-------------------------------------------------------------------------------$
+$ Copyright (c) Information Builders, Inc. All rights reserved. @MFSM_NOPROLOG@ $
+$-------------------------------------------------------------------------------$
+
+FILENAME=HDAY, SUFFIX=FIX, REMARKS='Holiday File', $
+   SEGMENT=HDAY, SEGTYPE=S0, $
+    FIELDNAME=HDAY_DATE,   ALIAS=HDAY_DATE, USAGE=YYMD,  ACTUAL=A8, $
+    FIELDNAME=HDAY_DESC,   ALIAS=HDAY_DESC, USAGE=A61,   ACTUAL=A61, $
